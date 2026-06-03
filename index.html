@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="theme-color" content="#2c4c7c">
-    <title>高频词汇本 · 精确Lesson分类 | 自动英式发音</title>
+    <title>高频词汇本 · 精确Lesson分组 | 可选手动/自动口音</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -28,13 +28,12 @@
         .header { padding: 1rem 1.2rem 0.6rem; text-align: center; border-bottom: 1px solid var(--card-border); }
         .header h1 { font-size: 1.8rem; background: linear-gradient(120deg, #1E2F5E, #2B4F8C); background-clip: text; -webkit-background-clip: text; color: transparent; }
         body.dark .header h1 { background: linear-gradient(120deg, #90cdf4, #63b3ed); background-clip: text; -webkit-background-clip: text; color: transparent; }
-        .sub { color: var(--text-soft); font-size: 0.8rem; }
         .control-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 8px 12px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--card-border); align-items: center; }
-        .ctrl-btn, .search-area, .lesson-selector { background: var(--chip-bg); border: none; padding: 5px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; color: var(--chip-color); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .ctrl-btn, .search-area, .lesson-selector, .accent-selector { background: var(--chip-bg); border: none; padding: 5px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; color: var(--chip-color); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
         .font-slider { display: flex; align-items: center; gap: 6px; background: var(--chip-bg); padding: 4px 12px; border-radius: 40px; }
         #fontRange { width: 80px; }
         .search-area input { background: transparent; border: none; outline: none; color: var(--text-primary); width: 120px; font-size: 0.7rem; }
-        .lesson-selector select { background: transparent; border: none; color: var(--chip-color); font-weight: 500; outline: none; font-size: 0.7rem; }
+        .lesson-selector select, .accent-selector select { background: transparent; border: none; color: var(--chip-color); font-weight: 500; outline: none; font-size: 0.7rem; }
         .word-zone { padding: 1rem 1rem 0.3rem; text-align: center; }
         .word-paper { background: var(--card-bg); border-radius: 48px; padding: 1.2rem 0.8rem; border: 1px solid var(--card-border); }
         .en-word { font-size: 2.5rem; font-weight: 800; color: var(--text-primary); word-break: break-word; }
@@ -48,7 +47,6 @@
         .meaning-card { background: var(--card-bg); border-radius: 32px; padding: 0.8rem; border: 1px solid var(--card-border); }
         .def-ch { font-size: 1rem; font-weight: 700; color: var(--def-color); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .example-en { color: var(--text-secondary); border-left: 3px solid var(--example-border); padding-left: 0.8rem; margin-top: 8px; font-size: 0.8rem; }
-        .placeholder-tip { text-align: center; color: var(--placeholder-color); padding: 0.5rem; font-size: 0.8rem; }
         .spell-area { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
         .spell-input { flex: 2; min-width: 140px; padding: 6px 12px; border-radius: 60px; border: 1px solid var(--btn-outline-border); background: var(--card-bg); color: var(--text-primary); font-size: 0.8rem; }
         .btn-group, .nav-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 0.2rem 1rem 0.6rem; }
@@ -79,7 +77,7 @@
 <div class="master-card">
     <div class="header">
         <h1><i class="fas fa-layer-group"></i> 高频词汇本 · 精确Lesson分组</h1>
-        <div class="sub">基于您的PDF | 英式自动发音 | 艾宾浩斯复习 | 错题本 | 拼写测试</div>
+        <!-- 无多余文字 -->
     </div>
     <div class="control-bar">
         <button id="darkModeBtn" class="ctrl-btn"><i class="fas fa-moon"></i> 深色</button>
@@ -88,7 +86,14 @@
         <button id="reviewWrongBtn" class="ctrl-btn"><i class="fas fa-book"></i> 复习错题本</button>
         <div class="auto-speak-toggle">
             <i class="fas fa-volume-up"></i>
-            <label><input type="checkbox" id="autoSpeakCheckbox" checked> 自动发音(英)</label>
+            <label><input type="checkbox" id="autoSpeakCheckbox" checked> 自动发音</label>
+        </div>
+        <div class="accent-selector">
+            <i class="fas fa-language"></i>
+            <select id="autoAccentSelect">
+                <option value="en-US" selected>🇺🇸 美式</option>
+                <option value="en-GB">🇬🇧 英式</option>
+            </select>
         </div>
         <div class="lesson-selector">
             <i class="fas fa-bookmark"></i>
@@ -114,8 +119,8 @@
 
     <div class="meaning-panel">
         <div class="meaning-card">
-            <div id="meaningPlaceholder" class="placeholder-tip"><i class="fas fa-lightbulb"></i> 点击「显示释义」或开启拼写模式</div>
-            <div id="meaningReal" style="display:none;">
+            <div id="meaningPlaceholder" class="placeholder-tip" style="display:none;"><i class="fas fa-lightbulb"></i> 点击「显示释义」或开启拼写模式</div>
+            <div id="meaningReal" style="display:block;">
                 <div class="def-ch"><i class="fas fa-bookmark"></i> <span id="chineseDef"></span></div>
                 <div class="example-en"><i class="fas fa-quote-right"></i> <span id="exampleSent">请用该词造句练习</span></div>
             </div>
@@ -132,7 +137,7 @@
     </div>
 
     <div class="btn-group">
-        <button id="revealBtn" class="btn btn-primary"><i class="fas fa-eye"></i> 显示释义</button>
+        <button id="revealBtn" class="btn btn-primary" style="display:none;"><i class="fas fa-eye"></i> 显示释义</button>
         <button id="speakUkBtn" class="btn btn-speak"><i class="fas fa-flag-checkered"></i> 英式发音</button>
         <button id="speakUsBtn" class="btn btn-speak"><i class="fas fa-flag-usa"></i> 美式发音</button>
         <button id="pronounceAccuracyBtn" class="btn btn-outline"><i class="fas fa-microphone"></i> 发音测测</button>
@@ -147,7 +152,7 @@
         <div class="chart-container"><canvas id="studyChart" width="260" height="120"></canvas></div>
         <div class="wrong-words"><h4><i class="fas fa-eraser"></i> 错题本/生词本</h4><ul id="wrongList" class="wrong-list"><li>暂无错词</li></ul></div>
     </div>
-    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级掌握度 | 拼写自动记错 | 按Lesson分类 | 自动英式发音可关闭</div>
+    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级掌握度 | 拼写自动记错 | 按Lesson分类 | 可选手动英/美 | 自动发音口音可选</div>
 </div>
 
 <script>
@@ -402,10 +407,11 @@ console.log(`总单词数: ${allWords.length}`);
 // ------------------- 全局变量 -------------------
 let currentDisplayWords = [...allWords];
 let currentIndex = 0;
-let meaningVisible = false;
+let meaningVisible = true;
 let spellMode = false;
 let autoSpeakEnabled = true;
 let currentSpeakTimer = null;
+let autoAccent = 'en-US';  // 默认美式
 
 // localStorage 学习数据
 const STORAGE = {
@@ -429,7 +435,7 @@ function updateWrongListUI() {
     if(!wrongList.length) { container.innerHTML = '<li>暂无错词，加油！</li>'; return; }
     container.innerHTML = wrongList.map(word => `<li data-word="${word}">${word}</li>`).join('');
     document.querySelectorAll('#wrongList li').forEach(li => {
-        li.addEventListener('click', () => { let w = li.dataset.word; let idx = currentDisplayWords.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } });
+        li.addEventListener('click', () => { let w = li.dataset.word; let idx = currentDisplayWords.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else showMeaningArea(); } });
     });
 }
 function addToWrongList(word) { if(!wrongList.includes(word)) { wrongList.push(word); localStorage.setItem(STORAGE.WRONG, JSON.stringify(wrongList)); updateWrongListUI(); } }
@@ -471,16 +477,16 @@ function hideMeaningAndShowSpell() {
     document.getElementById('spellFeedback').innerHTML = '';
     document.getElementById('revealBtn').disabled = true;
 }
-function showNormalMode() {
-    document.getElementById('meaningPlaceholder').style.display = meaningVisible ? 'none' : 'block';
-    document.getElementById('meaningReal').style.display = meaningVisible ? 'block' : 'none';
+function showMeaningArea() {
+    document.getElementById('meaningPlaceholder').style.display = 'none';
+    document.getElementById('meaningReal').style.display = 'block';
     document.getElementById('spellModeArea').style.display = 'none';
     document.getElementById('revealBtn').disabled = false;
 }
 function toggleSpellMode() {
     spellMode = !spellMode;
     if(spellMode) hideMeaningAndShowSpell();
-    else showNormalMode();
+    else showMeaningArea();
     document.getElementById('modeSwitchBtn').innerHTML = spellMode ? '<i class="fas fa-eye"></i> 闪卡模式' : '<i class="fas fa-exchange-alt"></i> 拼写模式';
 }
 function checkSpell() {
@@ -501,7 +507,7 @@ function checkSpell() {
 }
 function revealAnswer() { if(currentDisplayWords[currentIndex]) document.getElementById('spellFeedback').innerHTML = `🔎 正确答案: ${currentDisplayWords[currentIndex].word}`; }
 
-// 发音
+// 发音函数（通用）
 function speak(lang) { if(!currentDisplayWords[currentIndex]) return; let utterance = new SpeechSynthesisUtterance(currentDisplayWords[currentIndex].word); utterance.lang = lang; speechSynthesis.cancel(); speechSynthesis.speak(utterance); }
 
 // 发音准确度
@@ -517,29 +523,21 @@ function updateWordUI() {
     document.getElementById('currentPhonetic').innerHTML = `Lesson ${w.lesson}`;
     document.getElementById('counterText').innerHTML = `第${currentIndex+1} / ${currentDisplayWords.length}词`;
     if(!spellMode){
-        if(meaningVisible){
-            document.getElementById('chineseDef').innerHTML = w.meaning;
-            document.getElementById('exampleSent').innerHTML = w.example;
-            document.getElementById('meaningPlaceholder').style.display = 'none';
-            document.getElementById('meaningReal').style.display = 'block';
-        } else {
-            document.getElementById('meaningPlaceholder').style.display = 'block';
-            document.getElementById('meaningReal').style.display = 'none';
-        }
+        document.getElementById('chineseDef').innerHTML = w.meaning;
+        document.getElementById('exampleSent').innerHTML = w.example;
+        document.getElementById('meaningPlaceholder').style.display = 'none';
+        document.getElementById('meaningReal').style.display = 'block';
     } else {
         hideMeaningAndShowSpell();
     }
     updateMasteryStars();
     if(autoSpeakEnabled && !spellMode) {
         if(currentSpeakTimer) clearTimeout(currentSpeakTimer);
-        currentSpeakTimer = setTimeout(() => { speak('en-GB'); }, 200);
+        currentSpeakTimer = setTimeout(() => { speak(autoAccent); }, 200);
     }
 }
-function showMeaning() { meaningVisible=true; updateWordUI(); }
-function hideMeaning() { meaningVisible=false; updateWordUI(); }
-function toggleMeaning() { if(spellMode) return; meaningVisible=!meaningVisible; updateWordUI(); }
-function nextWord() { if(currentDisplayWords.length===0) return; currentIndex = (currentIndex+1)%currentDisplayWords.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
-function prevWord() { if(currentDisplayWords.length===0) return; currentIndex = (currentIndex-1+currentDisplayWords.length)%currentDisplayWords.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+function nextWord() { if(currentDisplayWords.length===0) return; currentIndex = (currentIndex+1)%currentDisplayWords.length; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+function prevWord() { if(currentDisplayWords.length===0) return; currentIndex = (currentIndex-1+currentDisplayWords.length)%currentDisplayWords.length; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
 
 // Lesson 下拉选择
 const lessonSelect = document.getElementById('lessonSelect');
@@ -561,11 +559,9 @@ function filterByLesson(lesson) {
         if(currentDisplayWords.length === 0) { alert(`Lesson ${lesson} 无单词`); return; }
     }
     currentIndex = 0;
-    meaningVisible = false;
     updateWordUI();
     if(spellMode) hideMeaningAndShowSpell();
 }
-
 lessonSelect.addEventListener('change', (e) => { filterByLesson(e.target.value); });
 populateLessonSelect();
 
@@ -574,14 +570,17 @@ function performSearch() {
     let keyword = document.getElementById('searchInput').value.trim().toLowerCase();
     if(!keyword) { alert("请输入单词"); return; }
     let idx = currentDisplayWords.findIndex(w => w.word === keyword);
-    if(idx !== -1) { currentIndex = idx; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+    if(idx !== -1) { currentIndex = idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
     else { alert(`未找到单词“${keyword}”`); }
 }
 document.getElementById('searchBtn').addEventListener('click', performSearch);
 document.getElementById('searchInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
 
+// 口音选择器
+const autoAccentSelect = document.getElementById('autoAccentSelect');
+autoAccentSelect.addEventListener('change', (e) => { autoAccent = e.target.value; });
+
 // 绑定其他事件
-document.getElementById('revealBtn').addEventListener('click', toggleMeaning);
 document.getElementById('speakUkBtn').addEventListener('click', ()=>speak('en-GB'));
 document.getElementById('speakUsBtn').addEventListener('click', ()=>speak('en-US'));
 document.getElementById('prevBtn').addEventListener('click', prevWord);
@@ -591,7 +590,7 @@ document.getElementById('modeSwitchBtn').addEventListener('click', toggleSpellMo
 document.getElementById('checkSpellBtn').addEventListener('click', checkSpell);
 document.getElementById('revealAnswerBtn').addEventListener('click', revealAnswer);
 document.getElementById('pronounceAccuracyBtn').addEventListener('click', pronounceAccuracy);
-document.getElementById('reviewWrongBtn').addEventListener('click', () => { if(wrongList.length) { let w = wrongList[0]; let idx = currentDisplayWords.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } } });
+document.getElementById('reviewWrongBtn').addEventListener('click', () => { if(wrongList.length) { let w = wrongList[0]; let idx = currentDisplayWords.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); } } });
 document.getElementById('autoSpeakCheckbox').addEventListener('change', (e) => { autoSpeakEnabled = e.target.checked; });
 
 // 深色模式
@@ -609,7 +608,7 @@ document.querySelector('.master-card').addEventListener('touchend', (e) => { let
 window.addEventListener('keydown', (e)=>{
     if(e.key === 'ArrowLeft'){ prevWord(); e.preventDefault(); }
     else if(e.key === 'ArrowRight'){ nextWord(); e.preventDefault(); }
-    else if(e.key === ' ' && !spellMode){ toggleMeaning(); e.preventDefault(); }
+    else if(e.key === ' ' && !spellMode){ e.preventDefault(); }
 });
 
 // 初始化
@@ -619,7 +618,7 @@ updateChart();
 
 // PWA 简单注册
 if ('serviceWorker' in navigator) {
-    const swCode = `const CACHE='final-pdf-v1'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+    const swCode = `const CACHE='final-pdf-v4'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
     const blob = new Blob([swCode], {type:'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob));
 }
