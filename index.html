@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="theme-color" content="#2c4c7c">
-    <title>高频词本 · 自动英式发音 | 艾宾浩斯复习</title>
+    <title>高频词汇本 · 按Lesson分类 | 自动英式发音</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -15,7 +15,6 @@
             --text-soft: #54708f; --def-color: #1f3b62; --example-border: #7f9bc5;
             --btn-primary-bg: #2c4c7c; --btn-primary-hover: #1f3a60; --btn-outline-border: #cbdae9;
             --chip-bg: #eef3ff; --chip-color: #1f4870; --placeholder-color: #89a0c0;
-            --modal-bg: white; --modal-text: #1f2937;
         }
         body.dark {
             --bg-start: #1a202c; --bg-end: #2d3748; --card-bg: #2d3748; --card-border: #4a5568;
@@ -23,7 +22,6 @@
             --def-color: #e2e8f0; --example-border: #718096; --btn-primary-bg: #4a6fa5;
             --btn-primary-hover: #2c5282; --btn-outline-border: #4a5568; --btn-outline-color: #cbd5e0;
             --chip-bg: #2d3748; --chip-color: #cbd5e0; --placeholder-color: #a0aec0;
-            --modal-bg: #2d3748; --modal-text: #f7fafc;
         }
         body { font-family: system-ui, 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-start), var(--bg-end)); min-height: 100vh; padding: 1rem; transition: background 0.3s; color: var(--text-primary); }
         .master-card { max-width: 950px; margin: 0 auto; background: var(--card-bg); border-radius: 56px; overflow: hidden; border: 1px solid var(--card-border); }
@@ -32,10 +30,11 @@
         body.dark .header h1 { background: linear-gradient(120deg, #90cdf4, #63b3ed); background-clip: text; -webkit-background-clip: text; color: transparent; }
         .sub { color: var(--text-soft); font-size: 0.8rem; }
         .control-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 8px 12px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--card-border); align-items: center; }
-        .ctrl-btn, .search-area { background: var(--chip-bg); border: none; padding: 5px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 500; color: var(--chip-color); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .ctrl-btn, .search-area, .lesson-selector { background: var(--chip-bg); border: none; padding: 5px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 500; color: var(--chip-color); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
         .font-slider { display: flex; align-items: center; gap: 6px; background: var(--chip-bg); padding: 4px 12px; border-radius: 40px; }
         #fontRange { width: 90px; }
         .search-area input { background: transparent; border: none; outline: none; color: var(--text-primary); width: 130px; font-size: 0.8rem; }
+        .lesson-selector select { background: transparent; border: none; color: var(--chip-color); font-weight: 500; outline: none; font-size: 0.75rem; }
         .word-zone { padding: 1.2rem 1rem 0.5rem; text-align: center; }
         .word-paper { background: var(--card-bg); border-radius: 48px; padding: 1.5rem 0.8rem; border: 1px solid var(--card-border); }
         .en-word { font-size: 2.8rem; font-weight: 800; color: var(--text-primary); word-break: break-word; }
@@ -65,23 +64,16 @@
         .wrong-list { font-size: 0.75rem; list-style: none; }
         .wrong-list li { padding: 4px 0; border-bottom: 1px solid var(--card-border); cursor: pointer; }
         .footer-note { text-align: center; font-size: 0.65rem; padding: 0.6rem; color: var(--text-soft); border-top: 1px solid var(--card-border);}
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--modal-bg); color: var(--modal-text); width: 90%; max-width: 480px; max-height: 70%; border-radius: 32px; padding: 1rem; overflow-y: auto; }
-        .modal-content h3 { margin-bottom: 10px; }
-        .search-result-item { padding: 8px; border-bottom: 1px solid var(--card-border); cursor: pointer; }
-        .search-result-item:hover { background: var(--chip-bg); }
-        .close-modal { float: right; font-size: 1.3rem; cursor: pointer; }
-        @media (max-width: 600px) { .en-word { font-size: 2rem; } .btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; } .search-area input { width: 100px; } }
-        .loading { text-align: center; padding: 20px; color: var(--text-secondary); }
         .auto-speak-toggle { display: flex; align-items: center; gap: 6px; background: var(--chip-bg); border-radius: 30px; padding: 4px 12px; }
         .auto-speak-toggle label { font-size: 0.7rem; cursor: pointer; }
+        @media (max-width: 600px) { .en-word { font-size: 2rem; } .btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; } .search-area input { width: 100px; } }
     </style>
 </head>
 <body>
 <div class="master-card">
     <div class="header">
-        <h1><i class="fas fa-book-open"></i> 高频词本 · 自动英式发音</h1>
-        <div class="sub">基于PDF高频词汇 | 艾宾浩斯复习 | 拼写测试 | 错题本 | 学习曲线</div>
+        <h1><i class="fas fa-layer-group"></i> 高频词汇本 · 按Lesson分类</h1>
+        <div class="sub">基于您的PDF | 英式自动发音 | 艾宾浩斯复习</div>
     </div>
     <div class="control-bar">
         <button id="darkModeBtn" class="ctrl-btn"><i class="fas fa-moon"></i> 深色</button>
@@ -91,6 +83,10 @@
         <div class="auto-speak-toggle">
             <i class="fas fa-volume-up"></i>
             <label><input type="checkbox" id="autoSpeakCheckbox" checked> 自动发音(英)</label>
+        </div>
+        <div class="lesson-selector">
+            <i class="fas fa-bookmark"></i>
+            <select id="lessonSelect"></select>
         </div>
         <div class="search-area">
             <input type="text" id="searchInput" placeholder="查单词...">
@@ -115,8 +111,7 @@
             <div id="meaningPlaceholder" class="placeholder-tip"><i class="fas fa-lightbulb"></i> 点击「显示释义」或开启拼写模式</div>
             <div id="meaningReal" style="display:none;">
                 <div class="def-ch"><i class="fas fa-bookmark"></i> <span id="chineseDef"></span></div>
-                <div id="extraInfo" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);"></div>
-                <div class="example-en"><i class="fas fa-quote-right"></i> <span id="exampleSent">示例：请使用该词造句练习</span></div>
+                <div class="example-en"><i class="fas fa-quote-right"></i> <span id="exampleSent">请用该词造句练习</span></div>
             </div>
             <div id="spellModeArea" style="display:none;">
                 <div class="def-ch"><span id="spellQuestion"></span></div>
@@ -146,16 +141,14 @@
         <div class="chart-container"><canvas id="studyChart" width="280" height="130"></canvas></div>
         <div class="wrong-words"><h4><i class="fas fa-eraser"></i> 错题本/生词本</h4><ul id="wrongList" class="wrong-list"><li>暂无错词</li></ul></div>
     </div>
-    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级掌握度 | 拼写自动记错 | 自动英式发音(可关闭)</div>
+    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级掌握度 | 拼写自动记错 | 按Lesson分类 | 自动英式发音可关闭</div>
 </div>
-
-<div id="searchModal" class="modal"><div class="modal-content"><span class="close-modal" id="closeModalBtn">&times;</span><h3>🔍 搜索结果</h3><div id="searchResultsList"></div></div></div>
 
 <script>
 // ============================================================
-// 基于您提供的 PDF 高频词汇表构建词库
+// 精确解析 PDF 中的单词，按 Lesson 分组
 // ============================================================
-const PDF_RAW_TEXT = `
+const pdfText = `
 ===== Page 1 =====
 1
 
@@ -271,67 +264,87 @@ approximately 大约; 近似sympathetic 同情的; 赞同的sympathy 同情; 同
 foundation 基础; 基金会; 地基executive 行政的; 高管vertical 垂直的; 直立的via 通过; 经由frame 框架; 结构; 构建visible 可见的; 明显的freight 货运; 货物vital 至关重要的; 生命的enroll 注册; 入学; 招收vivid 生动的; 鲜明的artistic 艺术的; 有艺术感的volume 音量; 卷; 体积warmth 温暖; 热情whoever 无论谁; 任何人cycle 循环; 周期; 自行车width 宽度; 广度worthy 值得的; 有价值的acre 英亩wrap 包裹; 缠绕abnormal 反常的; 异常的yield 产出; 屈服; 让步forth 向前; 往外investment 投资enthusiasm 热情; 热忱fraud 欺诈; 骗子
 `;
 
-// 解析PDF文本，提取单词和释义
-function parseWordsFromPDF(text) {
-    // 清理并分割
-    let lines = text.split(/\r?\n/);
-    let wordMap = new Map(); // 避免重复
-    // 匹配模式：单词 空格 释义 (可能多空格或分号)
-    // 也处理"单词 释义"中间有多个空格或制表符
-    const regex = /([a-zA-Z\-\(\)]+)\s+([\u4e00-\u9fa5;；，、\s]+)/;
-    // 额外处理"单词 释义"但释义可能包含空格和标点
+// 解析单词：按Lesson分组
+function parseLessons(text) {
+    const lessons = [];
+    let currentLesson = null;
+    const lines = text.split(/\r?\n/);
+    // 辅助：从一行中提取单词和释义 (单词 释义)
+    function extractWordMeaning(line) {
+        // 匹配格式：单词 空格 释义（中文字符或分号）
+        const match = line.match(/^([a-zA-Z\-\(\)]+)\s+([\u4e00-\u9fa5;；，、\s]+)$/);
+        if (match) {
+            return { word: match[1].trim().toLowerCase(), meaning: match[2].trim().replace(/\s+/g, ' ') };
+        }
+        // 也可能是 "单词 释义 单词 释义" 连续的情况，但这里逐行处理，已经由行分割处理大部分
+        return null;
+    }
     for (let line of lines) {
         line = line.trim();
         if (!line) continue;
-        if (line.startsWith('====') || line.startsWith('Page') || line.startsWith('Lesson') || /^\d+$/.test(line)) continue;
-        // 尝试匹配单词和释义
-        let match = line.match(regex);
-        if (match) {
-            let word = match[1].trim().toLowerCase();
-            let meaning = match[2].trim().replace(/[\s]+/g, ' ').replace(/；/g, '；');
-            if (word && meaning && !wordMap.has(word)) {
-                wordMap.set(word, meaning);
-            }
-        } else {
-            // 有些词是"word1 释义1 word2 释义2"连续排列，如"blank 空白的 obvious 明显的"
-            let parts = line.split(/\s{2,}/); // 按两个以上空格分割
+        // 检测 Lesson 标题
+        const lessonMatch = line.match(/====Lesson\s*(\d+)\s*单词\+释义====/i);
+        if (lessonMatch) {
+            if (currentLesson) lessons.push(currentLesson);
+            const lessonNum = parseInt(lessonMatch[1]);
+            currentLesson = { lesson: lessonNum, words: [] };
+            continue;
+        }
+        if (currentLesson) {
+            // 处理可能多个单词在一行的情况（如 "blank 空白的 obvious 明显的"）
+            // 按两个及以上空格分割
+            let parts = line.split(/\s{2,}/);
             for (let part of parts) {
-                let subMatch = part.match(/([a-zA-Z\-\(\)]+)\s+([\u4e00-\u9fa5;；，、]+)/);
-                if (subMatch) {
-                    let word = subMatch[1].trim().toLowerCase();
-                    let meaning = subMatch[2].trim();
-                    if (word && meaning && !wordMap.has(word)) wordMap.set(word, meaning);
+                let wm = extractWordMeaning(part);
+                if (wm) {
+                    currentLesson.words.push(wm);
+                } else {
+                    // 尝试更宽松的匹配：单词后跟中文，无空格或一个空格
+                    let laxMatch = part.match(/^([a-zA-Z\-\(\)]+)[\s]*([\u4e00-\u9fa5;；，、]+)/);
+                    if (laxMatch) {
+                        currentLesson.words.push({ word: laxMatch[1].trim().toLowerCase(), meaning: laxMatch[2].trim() });
+                    }
                 }
             }
         }
     }
-    // 额外补充：有些词条没有正确匹配，例如 "comprise 包含; 由____组成" 上面已包含
-    // 将 Map 转为数组
-    let result = [];
-    for (let [word, meaning] of wordMap.entries()) {
-        result.push({ word, meaning, phonetic: '', example: `请用“${word}”造句练习` });
-    }
-    // 按单词字母排序
-    result.sort((a,b)=>a.word.localeCompare(b.word));
-    console.log(`解析到 ${result.length} 个单词`);
-    return result;
+    if (currentLesson) lessons.push(currentLesson);
+    return lessons;
 }
 
-const fullVocabulary = parseWordsFromPDF(PDF_RAW_TEXT);
-const totalWords = fullVocabulary.length;
-console.assert(totalWords > 0, "词库为空，请检查解析逻辑");
-if (totalWords === 0) {
-    // 后备词库，防止解析失败
-    fullVocabulary.push({ word: "example", meaning: "例子；范例", phonetic: "", example: "This is an example." });
+const lessonsData = parseLessons(pdfText);
+// 将所有单词合并为一个列表（同时保留 lesson 信息）
+let allWords = [];
+lessonsData.forEach(lesson => {
+    lesson.words.forEach(w => {
+        allWords.push({
+            word: w.word,
+            meaning: w.meaning,
+            lesson: lesson.lesson,
+            example: `请用“${w.word}”造句练习`
+        });
+    });
+});
+console.log(`共解析 ${allWords.length} 个单词，来自 ${lessonsData.length} 个Lesson`);
+
+// 如果没有解析到任何单词，显示占位
+if (allWords.length === 0) {
+    allWords.push({ word: "example", meaning: "例子", lesson: 0, example: "Fallback" });
 }
 
-// ------------------- localStorage 学习数据 -------------------
+// ------------------- 全局变量 -------------------
+let currentIndex = 0;
+let meaningVisible = false;
+let spellMode = false;
+let autoSpeakEnabled = true;
+let currentSpeakTimer = null;
+
+// localStorage 学习数据
 const STORAGE = {
-    MASTERY: 'pdf_word_mastery',
-    WRONG: 'pdf_wrong_words',
-    STUDY_LOG: 'pdf_study_log',
-    LAST_REVIEW: 'pdf_last_review',
-    HISTORY: 'pdf_history'
+    MASTERY: 'pdf_lesson_mastery',
+    WRONG: 'pdf_lesson_wrong',
+    STUDY_LOG: 'pdf_lesson_study_log',
+    LAST_REVIEW: 'pdf_lesson_last_review'
 };
 let mastery = JSON.parse(localStorage.getItem(STORAGE.MASTERY)) || {};
 let wrongList = JSON.parse(localStorage.getItem(STORAGE.WRONG)) || [];
@@ -348,7 +361,7 @@ function updateWrongListUI() {
     if(!wrongList.length) { container.innerHTML = '<li>暂无错词，加油！</li>'; return; }
     container.innerHTML = wrongList.map(word => `<li data-word="${word}">${word}</li>`).join('');
     document.querySelectorAll('#wrongList li').forEach(li => {
-        li.addEventListener('click', () => { let w = li.dataset.word; let idx = wordList.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } });
+        li.addEventListener('click', () => { let w = li.dataset.word; let idx = allWords.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } });
     });
 }
 function addToWrongList(word) { if(!wrongList.includes(word)) { wrongList.push(word); localStorage.setItem(STORAGE.WRONG, JSON.stringify(wrongList)); updateWrongListUI(); } }
@@ -356,7 +369,7 @@ function removeFromWrongList(word) { wrongList = wrongList.filter(w => w !== wor
 
 // 掌握度星级
 function updateMasteryStars() {
-    let currentWord = wordList[currentIndex]?.word;
+    let currentWord = allWords[currentIndex]?.word;
     if(!currentWord) return;
     let score = mastery[currentWord] || 1;
     for(let i=1;i<=5;i++){ let star = document.querySelector(`.star[data-score='${i}']`); if(i <= score) { star.innerHTML = '★'; star.classList.add('active'); } else { star.innerHTML = '☆'; star.classList.remove('active'); } }
@@ -364,7 +377,7 @@ function updateMasteryStars() {
     if(last){ let daysPassed = Math.floor((Date.now() - last) / (1000*3600*24)); let nextInterval = EBBINGHAUS.find(interval => interval > daysPassed); if(nextInterval) document.getElementById('reviewHint').innerHTML = `📅 建议 ${nextInterval - daysPassed} 天后复习 (艾宾浩斯)`; else document.getElementById('reviewHint').innerHTML = `✅ 已熟练掌握，继续巩固`; }
     else { document.getElementById('reviewHint').innerHTML = `⭐ 点击星级标记掌握度，系统将安排复习`; }
 }
-function setMastery(score) { let w = wordList[currentIndex]?.word; if(!w) return; mastery[w] = score; localStorage.setItem(STORAGE.MASTERY, JSON.stringify(mastery)); lastReview[w] = Date.now(); localStorage.setItem(STORAGE.LAST_REVIEW, JSON.stringify(lastReview)); logStudy(); updateMasteryStars(); }
+function setMastery(score) { let w = allWords[currentIndex]?.word; if(!w) return; mastery[w] = score; localStorage.setItem(STORAGE.MASTERY, JSON.stringify(mastery)); lastReview[w] = Date.now(); localStorage.setItem(STORAGE.LAST_REVIEW, JSON.stringify(lastReview)); logStudy(); updateMasteryStars(); }
 document.querySelectorAll('.star').forEach(star => { star.addEventListener('click', (e) => { let score = parseInt(star.dataset.score); setMastery(score); }); });
 
 // 学习曲线图表
@@ -379,10 +392,9 @@ function updateChart() {
 }
 
 // 拼写模式
-let spellMode = false;
 function hideMeaningAndShowSpell() {
-    if(!wordList[currentIndex]) return;
-    const w = wordList[currentIndex];
+    if(!allWords[currentIndex]) return;
+    const w = allWords[currentIndex];
     document.getElementById('meaningPlaceholder').style.display = 'none';
     document.getElementById('meaningReal').style.display = 'none';
     document.getElementById('spellModeArea').style.display = 'block';
@@ -404,9 +416,9 @@ function toggleSpellMode() {
     document.getElementById('modeSwitchBtn').innerHTML = spellMode ? '<i class="fas fa-eye"></i> 闪卡模式' : '<i class="fas fa-exchange-alt"></i> 拼写模式';
 }
 function checkSpell() {
-    if(!wordList[currentIndex]) return;
+    if(!allWords[currentIndex]) return;
     let user = document.getElementById('spellInput').value.trim().toLowerCase();
-    let correct = wordList[currentIndex].word.toLowerCase();
+    let correct = allWords[currentIndex].word.toLowerCase();
     if(user === correct) {
         document.getElementById('spellFeedback').innerHTML = '<span style="color:green;">✅ 完全正确！已从错题本移除（如有）</span>';
         removeFromWrongList(correct);
@@ -419,35 +431,27 @@ function checkSpell() {
         if(cur > 1) setMastery(cur-1);
     }
 }
-function revealAnswer() { if(wordList[currentIndex]) document.getElementById('spellFeedback').innerHTML = `🔎 正确答案: ${wordList[currentIndex].word}`; }
+function revealAnswer() { if(allWords[currentIndex]) document.getElementById('spellFeedback').innerHTML = `🔎 正确答案: ${allWords[currentIndex].word}`; }
 
 // 发音
-function speak(lang) { if(!wordList[currentIndex]) return; let utterance = new SpeechSynthesisUtterance(wordList[currentIndex].word); utterance.lang = lang; speechSynthesis.cancel(); speechSynthesis.speak(utterance); }
+function speak(lang) { if(!allWords[currentIndex]) return; let utterance = new SpeechSynthesisUtterance(allWords[currentIndex].word); utterance.lang = lang; speechSynthesis.cancel(); speechSynthesis.speak(utterance); }
 
 // 发音准确度
 let recognition;
 function initRecognition() { if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert("不支持语音识别"); return null; } const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = new SpeechRecognition(); rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1; return rec; }
-function pronounceAccuracy() { if(!recognition) recognition = initRecognition(); if(!recognition) return; recognition.start(); recognition.onresult = (event) => { let spoken = event.results[0][0].transcript.toLowerCase().trim(); let target = wordList[currentIndex]?.word.toLowerCase() || ''; if(spoken === target) alert(`🎉 完美！发音准确率100%`); else if(spoken.includes(target) || target.includes(spoken)) alert(`👍 接近正确！ (你说: ${spoken})`); else alert(`❌ 发音有误，正确: ${target} (你说: ${spoken})`); }; recognition.onerror = () => alert("请检查麦克风权限"); }
-
-// 核心变量
-let wordList = [...fullVocabulary];  // 直接使用全部解析出的单词
-let currentIndex = 0;
-let meaningVisible = false;
-let autoSpeakEnabled = true;
-let currentSpeakTimer = null;
+function pronounceAccuracy() { if(!recognition) recognition = initRecognition(); if(!recognition) return; recognition.start(); recognition.onresult = (event) => { let spoken = event.results[0][0].transcript.toLowerCase().trim(); let target = allWords[currentIndex]?.word.toLowerCase() || ''; if(spoken === target) alert(`🎉 完美！`); else if(spoken.includes(target) || target.includes(spoken)) alert(`👍 接近正确！ (你说: ${spoken})`); else alert(`❌ 发音有误，正确: ${target} (你说: ${spoken})`); }; recognition.onerror = () => alert("请检查麦克风权限"); }
 
 // UI更新
 function updateWordUI() {
-    if(!wordList.length) return;
-    const w = wordList[currentIndex];
+    if(!allWords.length) return;
+    const w = allWords[currentIndex];
     document.getElementById('currentWord').innerHTML = w.word;
-    document.getElementById('currentPhonetic').innerHTML = w.phonetic || '/haɪ friːkwənsi/';
-    document.getElementById('counterText').innerHTML = `第${currentIndex+1} / ${wordList.length}词`;
+    document.getElementById('currentPhonetic').innerHTML = `/haɪ friːkwənsi/`; // 简单占位
+    document.getElementById('counterText').innerHTML = `第${currentIndex+1} / ${allWords.length}词 | Lesson ${w.lesson}`;
     if(!spellMode){
         if(meaningVisible){
             document.getElementById('chineseDef').innerHTML = w.meaning;
             document.getElementById('exampleSent').innerHTML = w.example;
-            document.getElementById('extraInfo').innerHTML = '';
             document.getElementById('meaningPlaceholder').style.display = 'none';
             document.getElementById('meaningReal').style.display = 'block';
         } else {
@@ -458,7 +462,7 @@ function updateWordUI() {
         hideMeaningAndShowSpell();
     }
     updateMasteryStars();
-    // 自动发音
+    // 自动英式发音
     if(autoSpeakEnabled && !spellMode) {
         if(currentSpeakTimer) clearTimeout(currentSpeakTimer);
         currentSpeakTimer = setTimeout(() => { speak('en-GB'); }, 200);
@@ -467,38 +471,90 @@ function updateWordUI() {
 function showMeaning() { meaningVisible=true; updateWordUI(); }
 function hideMeaning() { meaningVisible=false; updateWordUI(); }
 function toggleMeaning() { if(spellMode) return; meaningVisible=!meaningVisible; updateWordUI(); }
-function nextWord() { if(wordList.length===0) return; currentIndex = (currentIndex+1)%wordList.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
-function prevWord() { if(wordList.length===0) return; currentIndex = (currentIndex-1+wordList.length)%wordList.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+function nextWord() { if(allWords.length===0) return; currentIndex = (currentIndex+1)%allWords.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+function prevWord() { if(allWords.length===0) return; currentIndex = (currentIndex-1+allWords.length)%allWords.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
 
-// 搜索
-const searchInput = document.getElementById('searchInput');
-const searchBtn = document.getElementById('searchBtn');
+// Lesson 下拉选择
+const lessonSelect = document.getElementById('lessonSelect');
+function populateLessonSelect() {
+    let lessons = [...new Set(allWords.map(w => w.lesson))].sort((a,b)=>a-b);
+    lessonSelect.innerHTML = '<option value="all">全部单词</option>';
+    lessons.forEach(ls => {
+        let option = document.createElement('option');
+        option.value = ls;
+        option.textContent = `Lesson ${ls}`;
+        lessonSelect.appendChild(option);
+    });
+}
+function filterByLesson(lesson) {
+    if(lesson === 'all') {
+        // 维持原 allWords 引用，但不改变 allWords 内容，我们用一个临时列表实现
+        // 为了简单，重新设置 allWordsFiltered 但会影响索引？我们直接重建全局 allWords 为原始全部
+        // 但原始 allWords 是完整的，不需要过滤，只需要重新设置 currentIndex 和 UI
+        // 所以我们保留 allWords 始终为完整列表，但 lessonSelect 只影响显示范围？用户希望只显示该Lesson单词。
+        // 修改 allWords 会导致丢失其他数据？我们可以创建一个 filteredWords 变量。
+        // 为了代码简单，使用全局 filteredWords 并切换，但会影响学习数据存储（因为存储基于word字符串，不影响）。
+        // 实现：
+        window.currentDisplayWords = [...allWords];
+        currentIndex = 0;
+        updateWordUI();
+    } else {
+        let filtered = allWords.filter(w => w.lesson == lesson);
+        window.currentDisplayWords = filtered;
+        if(filtered.length === 0) { alert(`Lesson ${lesson} 无单词`); return; }
+        currentIndex = 0;
+        updateWordUI();
+    }
+}
+// 修改 updateWordUI 使用 window.currentDisplayWords
+let originalUpdateWordUI = updateWordUI;
+updateWordUI = function() {
+    let words = window.currentDisplayWords || allWords;
+    if(!words.length) return;
+    const w = words[currentIndex];
+    document.getElementById('currentWord').innerHTML = w.word;
+    document.getElementById('currentPhonetic').innerHTML = `/haɪ friːkwənsi/`;
+    document.getElementById('counterText').innerHTML = `第${currentIndex+1} / ${words.length}词 | Lesson ${w.lesson}`;
+    if(!spellMode){
+        if(meaningVisible){
+            document.getElementById('chineseDef').innerHTML = w.meaning;
+            document.getElementById('exampleSent').innerHTML = w.example;
+            document.getElementById('meaningPlaceholder').style.display = 'none';
+            document.getElementById('meaningReal').style.display = 'block';
+        } else {
+            document.getElementById('meaningPlaceholder').style.display = 'block';
+            document.getElementById('meaningReal').style.display = 'none';
+        }
+    } else {
+        hideMeaningAndShowSpell();
+    }
+    updateMasteryStars();
+    if(autoSpeakEnabled && !spellMode) {
+        if(currentSpeakTimer) clearTimeout(currentSpeakTimer);
+        currentSpeakTimer = setTimeout(() => { speak('en-GB'); }, 200);
+    }
+};
+function nextWord() { let words = window.currentDisplayWords || allWords; if(words.length===0) return; currentIndex = (currentIndex+1)%words.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+function prevWord() { let words = window.currentDisplayWords || allWords; if(words.length===0) return; currentIndex = (currentIndex-1+words.length)%words.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+// 搜索也适配当前显示列表
 function performSearch() {
-    let keyword = searchInput.value.trim().toLowerCase();
+    let keyword = document.getElementById('searchInput').value.trim().toLowerCase();
     if(!keyword) { alert("请输入单词"); return; }
-    let idx = wordList.findIndex(w => w.word === keyword);
+    let words = window.currentDisplayWords || allWords;
+    let idx = words.findIndex(w => w.word === keyword);
     if(idx !== -1) { currentIndex = idx; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
     else { alert(`未找到单词“${keyword}”`); }
 }
-searchBtn.addEventListener('click', performSearch);
-searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
 
-// 手势翻页
-let touchStartX = 0;
-document.querySelector('.master-card').addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
-document.querySelector('.master-card').addEventListener('touchend', (e) => { let endX = e.changedTouches[0].screenX; if(endX - touchStartX > 50) prevWord(); else if(touchStartX - endX > 50) nextWord(); });
+lessonSelect.addEventListener('change', (e) => { filterByLesson(e.target.value); });
+window.currentDisplayWords = [...allWords];
+populateLessonSelect();
 
-// 深色模式
-function toggleDark(){ document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
-if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-let fontRange = document.getElementById('fontRange');
-fontRange.addEventListener('input', (e)=>{ let size = e.target.value; document.querySelector('.en-word').style.fontSize = `${size*2.2}rem`; });
+// 搜索按钮
+document.getElementById('searchBtn').addEventListener('click', performSearch);
+document.getElementById('searchInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
 
-// 自动发音开关
-const autoCheck = document.getElementById('autoSpeakCheckbox');
-autoCheck.addEventListener('change', (e) => { autoSpeakEnabled = e.target.checked; });
-
-// 绑定事件
+// 绑定其余事件
 document.getElementById('revealBtn').addEventListener('click', toggleMeaning);
 document.getElementById('speakUkBtn').addEventListener('click', ()=>speak('en-GB'));
 document.getElementById('speakUsBtn').addEventListener('click', ()=>speak('en-US'));
@@ -509,8 +565,21 @@ document.getElementById('modeSwitchBtn').addEventListener('click', toggleSpellMo
 document.getElementById('checkSpellBtn').addEventListener('click', checkSpell);
 document.getElementById('revealAnswerBtn').addEventListener('click', revealAnswer);
 document.getElementById('pronounceAccuracyBtn').addEventListener('click', pronounceAccuracy);
-document.getElementById('reviewWrongBtn').addEventListener('click', () => { if(wrongList.length) { let w = wrongList[0]; let idx = wordList.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } } });
+document.getElementById('reviewWrongBtn').addEventListener('click', () => { if(wrongList.length) { let w = wrongList[0]; let words = window.currentDisplayWords || allWords; let idx = words.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } } });
+document.getElementById('autoSpeakCheckbox').addEventListener('change', (e) => { autoSpeakEnabled = e.target.checked; });
 
+// 深色模式
+function toggleDark(){ document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
+if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
+let fontRange = document.getElementById('fontRange');
+fontRange.addEventListener('input', (e)=>{ let size = e.target.value; document.querySelector('.en-word').style.fontSize = `${size*2.2}rem`; });
+
+// 手势翻页
+let touchStartX = 0;
+document.querySelector('.master-card').addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+document.querySelector('.master-card').addEventListener('touchend', (e) => { let endX = e.changedTouches[0].screenX; if(endX - touchStartX > 50) prevWord(); else if(touchStartX - endX > 50) nextWord(); });
+
+// 键盘
 window.addEventListener('keydown', (e)=>{
     if(e.key === 'ArrowLeft'){ prevWord(); e.preventDefault(); }
     else if(e.key === 'ArrowRight'){ nextWord(); e.preventDefault(); }
@@ -524,7 +593,7 @@ updateChart();
 
 // PWA 简单注册
 if ('serviceWorker' in navigator) {
-    const swCode = `const CACHE='pdf-v1'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+    const swCode = `const CACHE='pdf-lesson-v1'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
     const blob = new Blob([swCode], {type:'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob));
 }
