@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="theme-color" content="#2c4c7c">
-    <meta name="description" content="智能单词学习 · 基于API · 艾宾浩斯复习 · 拼写测试 · 学习曲线 · 错题本">
-    <title>智能单词本 · API海量词库 | 艾宾浩斯复习</title>
+    <title>高频词本 · 自动英式发音 | 艾宾浩斯复习</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -74,30 +73,35 @@
         .close-modal { float: right; font-size: 1.3rem; cursor: pointer; }
         @media (max-width: 600px) { .en-word { font-size: 2rem; } .btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; } .search-area input { width: 100px; } }
         .loading { text-align: center; padding: 20px; color: var(--text-secondary); }
+        .auto-speak-toggle { display: flex; align-items: center; gap: 6px; background: var(--chip-bg); border-radius: 30px; padding: 4px 12px; }
+        .auto-speak-toggle label { font-size: 0.7rem; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="master-card">
     <div class="header">
-        <h1><i class="fas fa-cloud"></i> 智能单词本 · API海量词库</h1>
-        <div class="sub">艾宾浩斯复习 · 拼写测试 · 错题本 · 学习曲线 · 双发音</div>
+        <h1><i class="fas fa-book-open"></i> 高频词本 · 自动英式发音</h1>
+        <div class="sub">基于PDF高频词汇 | 艾宾浩斯复习 | 拼写测试 | 错题本 | 学习曲线</div>
     </div>
     <div class="control-bar">
         <button id="darkModeBtn" class="ctrl-btn"><i class="fas fa-moon"></i> 深色</button>
         <div class="font-slider"><i class="fas fa-font"></i><input type="range" id="fontRange" min="0.8" max="1.5" step="0.05" value="1"></div>
         <button id="modeSwitchBtn" class="ctrl-btn"><i class="fas fa-exchange-alt"></i> 拼写模式</button>
         <button id="reviewWrongBtn" class="ctrl-btn"><i class="fas fa-book"></i> 复习错题本</button>
+        <div class="auto-speak-toggle">
+            <i class="fas fa-volume-up"></i>
+            <label><input type="checkbox" id="autoSpeakCheckbox" checked> 自动发音(英)</label>
+        </div>
         <div class="search-area">
-            <input type="text" id="searchInput" placeholder="查单词/释义...">
+            <input type="text" id="searchInput" placeholder="查单词...">
             <button id="searchBtn"><i class="fas fa-search"></i></button>
         </div>
-        <button id="randomApiBtn" class="ctrl-btn"><i class="fas fa-dice-d6"></i> 随机单词</button>
     </div>
 
     <div class="word-zone">
         <div class="word-paper">
-            <div class="en-word" id="currentWord">loading</div>
-            <div class="phonetic-txt" id="currentPhonetic"></div>
+            <div class="en-word" id="currentWord">加载中...</div>
+            <div class="phonetic-txt" id="currentPhonetic">/ˈhaɪ friːkwənsi/</div>
             <div class="word-counter" id="counterText"></div>
             <div class="mastery-stars" id="masteryStars">
                 <span class="star" data-score="1">☆</span><span class="star" data-score="2">☆</span><span class="star" data-score="3">☆</span><span class="star" data-score="4">☆</span><span class="star" data-score="5">☆</span>
@@ -112,7 +116,7 @@
             <div id="meaningReal" style="display:none;">
                 <div class="def-ch"><i class="fas fa-bookmark"></i> <span id="chineseDef"></span></div>
                 <div id="extraInfo" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);"></div>
-                <div class="example-en"><i class="fas fa-quote-right"></i> <span id="exampleSent"></span></div>
+                <div class="example-en"><i class="fas fa-quote-right"></i> <span id="exampleSent">示例：请使用该词造句练习</span></div>
             </div>
             <div id="spellModeArea" style="display:none;">
                 <div class="def-ch"><span id="spellQuestion"></span></div>
@@ -128,8 +132,8 @@
 
     <div class="btn-group">
         <button id="revealBtn" class="btn btn-primary"><i class="fas fa-eye"></i> 显示释义</button>
-        <button id="speakUkBtn" class="btn btn-speak"><i class="fas fa-flag-checkered"></i> 英式</button>
-        <button id="speakUsBtn" class="btn btn-speak"><i class="fas fa-flag-usa"></i> 美式</button>
+        <button id="speakUkBtn" class="btn btn-speak"><i class="fas fa-flag-checkered"></i> 英式发音</button>
+        <button id="speakUsBtn" class="btn btn-speak"><i class="fas fa-flag-usa"></i> 美式发音</button>
         <button id="pronounceAccuracyBtn" class="btn btn-outline"><i class="fas fa-microphone"></i> 发音测测</button>
     </div>
 
@@ -142,287 +146,240 @@
         <div class="chart-container"><canvas id="studyChart" width="280" height="130"></canvas></div>
         <div class="wrong-words"><h4><i class="fas fa-eraser"></i> 错题本/生词本</h4><ul id="wrongList" class="wrong-list"><li>暂无错词</li></ul></div>
     </div>
-    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级掌握度 | 拼写自动记错 | 基于API海量词库</div>
+    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级掌握度 | 拼写自动记错 | 自动英式发音(可关闭)</div>
 </div>
 
 <div id="searchModal" class="modal"><div class="modal-content"><span class="close-modal" id="closeModalBtn">&times;</span><h3>🔍 搜索结果</h3><div id="searchResultsList"></div></div></div>
 
 <script>
 // ============================================================
-// 基于 API 的单词学习系统
-// API: https://v2.xxapi.cn/api/englishwords?word={word}
-// 支持缓存、掌握度、错题本、艾宾浩斯复习
+// 基于您提供的 PDF 高频词汇表构建词库
 // ============================================================
+const PDF_RAW_TEXT = `
+===== Page 1 =====
+1
 
-// ---------- 核心数据结构 ----------
-let wordList = [];           // 存储当前学习列表（单词对象）
-let currentIndex = 0;
-let meaningVisible = false;
-let spellMode = false;
+====Lesson 5 单词+释义====section 部分; 部门; 区域selection 选择; 挑选dispose 处理; 安排; 扔掉extensive 广泛的; 大量的appoint 任命; 约定account 解释; 账户; 认为beneficial 有益的arrange 安排; 整理tender 温柔的; 脆弱的preferable 更可取的; 更好的arrangement 安排; 筹备slight 轻微的; 轻视liable 有责任的; 易于____的attraction 吸引; 吸引力mild 温和的; 轻微的extension 延伸; 扩大fascinate 使着迷; 深深吸引fundamental 基本的; 根本的assemble 组装; 集合comparative 比较的; 相对的extent 程度; 范围attractive 有吸引力的comparison 比较; 对比supreme 最高的; 至高的vary 变化; 改变significant 重要的; 显著的accumulate 积累; 积攒transfer 转移; 转让; 转学involve 涉及; 包含; 使参与shift 转移; 转变; 更换significance 意义; 重要性nuisance 讨厌的人/事; 麻烦
 
-// 本地存储 key
-const STORAGE_KEYS = {
-    MASTERY: 'word_mastery_api',
-    WRONG: 'wrong_words_api',
-    STUDY_LOG: 'study_log_api',
-    LAST_REVIEW: 'last_review_api',
-    WORD_CACHE: 'word_cache_api'    // 缓存单词详情
-};
+comprise 包含; 由____组成cultivate 培养; 耕作anxiety 焦虑; 担忧offend 冒犯; 违反transport 运输; 运送postpone 推迟; 延期impress 给____留下印象transmit 传输; 传播; 发送conservative 保守的; 守旧的impression 印象; 感想transform 改变; 使变形confident 自信的; 有信心的impressive 令人印象深刻的transplant 移植; 移栽grant 授予; 同意; 拨款interfere 干涉; 干扰liberal 开明的; 自由的; 慷慨的exaggerate 夸张; 夸大range 范围; 一系列; 变动outstanding 杰出的; 显著的curiosity 好奇心; 好奇differ 不同; 有区别consistent 一致的; 始终如一的remedy 补救; 治疗; 疗法bare 赤裸的; 光秃秃的considerate 体贴的; 考虑周到的status 地位; 状态vacant 空缺的; 茫然的optimistic 乐观的determination 决心; 决定hollow 空的; 空洞的optional 可选择的; 非强制的accurate 准确的; 精确的
 
-// 学习数据
-let mastery = JSON.parse(localStorage.getItem(STORAGE_KEYS.MASTERY)) || {};
-let wrongList = JSON.parse(localStorage.getItem(STORAGE_KEYS.WRONG)) || [];
-let studyLog = JSON.parse(localStorage.getItem(STORAGE_KEYS.STUDY_LOG)) || {};
-let lastReview = JSON.parse(localStorage.getItem(STORAGE_KEYS.LAST_REVIEW)) || {};
-let wordCache = JSON.parse(localStorage.getItem(STORAGE_KEYS.WORD_CACHE)) || {};
+===== Page 2 =====
+blank 空白的; 茫然的  obvious 明显的; 显而易见的  adequate 足够的; 适当的  relate 联系; 讲述; 相关  exhaust 耗尽; 使筋疲力尽  excessive 过多的; 过分的  urgent 紧急的; 急迫的  exploit 利用; 剥削; 开发  excess 过量; 过剩  partial 部分的; 偏袒的  consume 消耗; 消费; 吃光  ====Lesson 6 单词+释义====  idle 闲置的; 懒散的; 虚度  emotion 情绪; 情感  response 回应; 答复; 反应  inevitable 不可避免的  awkward 尴尬的; 笨拙的  responsible 负责的; 可靠的  poverty 贫穷; 贫困  gradual 逐渐的; 逐步的  settlement 定居; 解决; 定居点  vigorous 精力充沛的; 有力的  amaze 使惊奇; 使惊愕  solution 解决办法; 溶液  trial 试验; 审判; 考验  startle 使惊吓; 使吃惊  grasp 抓住; 理解; 领会  battery 电池; 一系列  amuse 使开心; 逗乐  reap 收获; 获得  reserve 保留; 预订; 储备  feature 特征; 特点; 以——为特色
 
-// 艾宾浩斯间隔（天）
-const EBBINGHAUS = [1, 2, 4, 7, 15, 30];
+compress 压缩; 压紧provision 供应; 条款; 预备trait 特征; 品质; 特点decrease 减少; 降低tidy 整洁的; 整理stimulate 刺激; 激励; 促进deduct 扣除; 减去appreciate 欣赏; 感激; 理解appearance 外观; 外貌; 出现exchange 交换; 交流appeal 呼吁; 吸引; 上诉secure 安全的; 获得; 保护original 最初的; 原创的apply 申请; 应用; 适用disturb 打扰; 妨碍; 扰乱extreme 极端的; 极度的application 申请; 应用tense 紧张的; 拉紧的expense 花费; 开销applicant 申请人intensive 集中的; 深入的virtue 美德; 优点applicable 适用的; 合适的access 通道; 进入; 使用权property 财产; 性质; 房产approve 批准; 赞成; 认可assess 评估; 评定tough 艰难的; 坚韧的pace 步伐; 节奏; 速度assignment 任务; 作业; 分配instant 立即的; 瞬间scratch 抓; 刮; 擦伤exception 例外; 除外
 
-// 常用单词种子列表（用于初始化学习列表，这些词会从 API 获取详情）
-const SEED_WORDS = [
-    "abandon", "ability", "able", "abnormal", "aboard", "abolish", "abrupt", "absent", "absolute", "absorb",
-    "abstract", "abundant", "abuse", "academic", "accelerate", "access", "accident", "accompany", "accomplish",
-    "account", "accurate", "accuse", "achieve", "acknowledge", "acquire", "adapt", "address", "adequate",
-    "adjust", "admire", "admit", "adopt", "advance", "advantage", "advice", "advise", "advocate", "affect",
-    "afford", "age", "agency", "agent", "aggressive", "agree", "aid", "aim", "air", "alarm", "album", "alcohol",
-    "alert", "alien", "alike", "alive", "allow", "almost", "alone", "along", "aloud", "alphabet", "already",
-    "also", "alter", "alternate", "alternative", "although", "altitude", "altogether", "always", "amateur",
-    "amaze", "ambition", "ambulance", "amount", "amuse", "analyze", "ancient", "anger", "angle", "angry",
-    "animal", "anniversary", "announce", "annoy", "annual", "another", "answer", "ant", "anticipate",
-    "anxiety", "anxious", "any", "apart", "apartment", "apologize", "apparent", "appeal", "appear", "appetite",
-    "apply", "appoint", "appreciate", "approach", "appropriate", "approve", "approximate", "area", "argue",
-    "arise", "arm", "army", "around", "arrange", "arrest", "arrive", "arrow", "article", "artificial", "artist",
-    "ashamed", "aside", "ask", "aspect", "assemble", "assert", "assess", "assign", "assist", "assume", "assure",
-    "astonish", "atmosphere", "attach", "attack", "attain", "attempt", "attend", "attitude", "attract",
-    "attribute", "audience", "author", "authority", "available", "average", "avoid", "await", "awake", "award", "aware"
-];
+===== Page 3 =====
+advisable 明智的；可取的
+gap 缺口 ；差距；间隔
+vain 徒劳的；虚荣的
+rate 比率；速度；评价
+motivate 激励；激发
+interval 间隔；间歇
+available 可获得的；可用的
+equivalent 等价的；相等的
+debate 辩论；争论
+tedious 冗长乏味的；繁琐的
+perspective 视角；观点；远景
+harsh 严厉的；苛刻的；刺耳的
+regardless 不管；不顾
+arouse 引起；唤醒；激发
+consult 咨询；请教；查阅
+wreck 破坏；失事；残骸
+impact 影响；冲击
+undermine 破坏；削弱；损害
+capacity 能力 ；容量
+rip 撕裂；撕开
+dispute 争论；争端；质疑
+temper 脾气；情绪；缓和
+essential 至关重要的；基本的
+passion 激情；热爱 ；怒火
+possibility 可能性
+pollute 污染；弄脏
+leak 泄漏；漏洞
+stain 污渍；玷污
+necessarily 必要地；必定
+approach 方法；接近；处理
+reveal 揭示；显示；透露
+resist 抵抗；抗拒；忍耐
+omit 省略；遗漏；忽略
+sustain 维持；支撑；经受
+intact 完整的；未受损的
+tolerate 容忍；忍受；包容
+revise 修订；复习 ；修改
+bound 一定的；束缚；跳跃
+spot 地点；发现；认出
+boundary 边界；界限
+remarkable 显著的；非凡的
+association 协会；联系；联想
+trace 追踪；痕迹；追溯
+recycle 回收；循环利用
+regulate 管理；调节；控制
+abuse 滥用 ；虐待；辱骂
+lest 唯恐； 以免
+overlook 俯瞰；忽视；宽恕
+coordinate 协调 ；配合
+intention 意图； 目的； 打算
+mood 心情；情绪
+enormous 巨大的；极大的
+reconcile 调和；和解；妥协
+rainbow 彩虹
+ribbon 丝带；带状物
+=====Lesson 7 单词+释义=====
+rank 等级；排名；地位
+reverse 颠倒；反转；相反的
+occupy 占据； 占用；使忙碌
+promote 促进；提升；推广
+classify 分类；归类
+accuse 指责；控告；指控
+glimpse 瞥见 ；一瞥
+view 看法；视野；观看
+vision 视力；视野；愿景
 
-// ---------- 工具函数 ----------
-function todayStr() { return new Date().toISOString().slice(0,10); }
+===== Page 4 =====
+entitle 使有权；给——题名absorb 吸收；理解concentrate 集中；专注commit 犯（错）；承诺；投入switch 转换；开关convert 转换；转变fruitful 富有成效的；多产的effective 有效的；起作用的expansive 广阔的；扩张的expansion 扩张；膨胀define 定义；解释definite 明确的；一定的submit 提交；屈服claim 声称；索要；断言assert 断言；坚持主张proclaim 宣告；声明amount 数量；总计tend 倾向；照料tame 驯服的；温顺的；驯化largely 主要地；很大程度上guilty 有罪的；内疚的oblige 迫使；帮忙；施恩惠issue 问题；发行；流出severe 严重的；严厉的expose 暴露；揭露exposure 暴露；曝光betray 背叛；泄露acquire 获得；取得inquire 询问；打听furnish 提供；布置家具propose 提议；建议dense 密集的；稠密的device 设备；装置
 
-function logStudy() {
-    let date = todayStr();
-    studyLog[date] = (studyLog[date] || 0) + 1;
-    localStorage.setItem(STORAGE_KEYS.STUDY_LOG, JSON.stringify(studyLog));
-    updateChart();
+valid 有效的；合理的trap 陷阱；困住constant 持续的；恒定的bold 大胆的；粗体的efficient 高效的incline 倾斜；倾向purchase 购买particularly 尤其；特别retain 保留；保持endure 忍受；持续=====Lesson 8 单词+释义=====maintain 维持；保持；坚持认为survive 生存；幸存；生还minimum 最小值；最低的modest 谦虚的；适度的stock 库存；股票；储备assume 假定；认为；承担crime 罪行；犯罪distinct 明显的；不同的；清晰的sufficient 足够的；充足的approximate 大约；近似display 展示；陈列；表现reaction 反应；回应comment 评论；议论artificial 人造的；人工的contrast 对比；对照contribute 贡献；捐献；促成sole 唯一的；单独的attain 获得；达到；实现observe 观察；遵守；庆祝observation 观察；观察力growth 成长；增长；发展
+
+===== Page 5 =====
+neglect 忽视;疏忽deny 否认;拒绝miserable 痛苦的;悲惨的opportunity 机会;机遇reality 现实;真实consequently 因此;所以relieve 减轻;缓解;宽慰relief 减轻;解脱;救济contrary 相反的;对立的pitch 音调;投掷;球场toss 扔;抛;投掷insert 插入;嵌入impose 强加;征收;推行plunge 暴跌;投入;猛冲adjust 调整;适应harm 伤害;损害spite 恶意;不顾dim 昏暗的;模糊的delivery 交付;投递;分娩inform 通知;告知replace 代替;取代accomplish 完成;实现surround 包围;环绕circumstance 情况;环境generate 产生;生成create 创造;创作creative 有创造力的fade 褪色;衰退;消失thorough 彻底的;详尽的procedure 程序;步骤process 过程;处理activity 活动;行动participate 参与;参加
+
+cliff 悬崖;峭壁respectively 分别地;各自地reasonable 合理的;公道的specific 具体的;特定的specialize 专攻;专门研究usage 使用;用法utility 效用;实用stable 稳定的;稳固的abolish 废除;废止abundant 大量的;丰富的cabinet 内阁;橱柜candidate 候选人;报考者capable 有能力的;能干的decay 腐烂;衰退economy 经济;节约faithful 忠实的;忠诚的identical 相同的;同一的lag 落后;滞后negative 消极的;否定的parade 游行;检阅rack 架子;折磨rare 稀有的;罕见的raw 生的;原始的;未加工的sacrifice 牺牲;奉献salary 薪水wage 工资(周薪)====Lesson 9 单词+释义====veteran 老兵;经验丰富的人assembly 集会;组装;议会clue 线索;提示code 代码;准则;密码collective 集体的;集体
+
+===== Page 6 =====
+federal联邦的；联邦政府的  feedback反馈；回复  fertile肥沃的；多产的  finding发现；调查结果  immense巨大的；极大的  painful痛苦的；疼痛的  perceive感知；理解；察觉  perception感知；看法；洞察力  poison毒药；毒害  sanction制裁；认可；批准  script剧本；手稿；笔迹  senator参议员  sexual性的；性别的  shortly不久；立刻；简短地  sigh叹气；叹息  ski滑雪  tremble颤抖；摇晃  fluctuate波动；起伏  quiver颤抖；抖动  tutor导师；家教；辅导  union联盟；工会；联合  unload卸载；卸下  exhibit展览；展示；展品  expel驱逐；开除；排出  explicit明确的；清晰的  democracy民主；民主制  accent口音；重音  acceptable可接受的  definitely肯定；明确地  acid酸；酸性的  drift漂流；漂移；趋势  amusement娱乐；乐趣  aspect方面；外观
+
+construct建造；构建；构思crew全体船员/机组人员divorce离婚；分离domestic国内的；家庭的；家养的evidence证据；证明evolve进化；演变；发展focus专注；焦点；聚焦organ器官；机构；风琴precaution预防；警惕；防备prior先前的；优先的project项目；工程；投射revolt反抗；反叛；反感scatter分散；散开；散播sphere领域；球体；范围stir搅动；激发；搅动strain压力；拉紧；扭伤stress压力；强调；重读substance物质；实质；物品up-to-date最新的；现代化的vague模糊的；含糊的blur模糊；使模糊vessel船；容器；血管agenda议程；日程alongside在旁边；与——一起banner横幅；旗帜chap家伙；小伙子charity慈善；慈善机构charter宪章；特许；包租dash猛冲；破折号；短跑declaration声明；宣告echo回声；回响；附和editorial社论；编辑的elderly年老的；老年人
+
+===== Page 7 =====
+bar酒吧；禁止；障碍  dot点；小点；点缀  bond纽带；结合；债券  applaud鼓掌；称赞  bonus奖金；红利；额外好处  dental牙齿的；牙科的  cell细胞；牢房；电池  anyway无论如何；不管怎样  colleague同事；同僚  ===Lesson10单词+释义=====  album相册；专辑；集邮册  combination结合；组合；联合  philosophy哲学；人生观  aid帮助；援助；辅助  compatible兼容的；和睦的  committee委员会  outward向外的；外表的  consensus共识；一致意见  presence出席；存在；风度  contaminate污染；弄脏  airline航空公司；航线  ambitious雄心勃勃的；有野心的  cord绳索；电线；弦  criminal罪犯；犯罪的  plus加上；加号；优势  cripple使残疾；削弱；跛子  curb控制；抑制；路边  decade十年；十年期  carpenter木匠  probe探查；探测；调查  denial否认；拒绝；克制  progressive进步的；渐进的
+
+destructive破坏性的；有害的dignity尊严；庄重calendar日历；日程表dilemma困境；进退两难refusal拒绝；回绝astonish使惊讶；使吃惊directly直接地；立即resent怨恨；愤恨signal信号；标志awful糟糕的；可怕的shell壳；贝壳；外壳sideways向侧面；侧身地wisdom智慧；明智roast烘烤；烤肉creation创造；创作；作品rude粗鲁的；无礼的distract使分心；转移注意力screw螺丝；拧紧whistle口哨；吹口哨dizzy头晕的；眩晕的enclose围住；附上；封闭welfare福利；幸福energetic精力充沛的cute可爱的；机灵的enjoyable令人愉快的deadly致命的；极度的enlighten启发；开导；照亮corporation公司；企业enrich使丰富；使富足conjunction连词；结合ethnic种族的；民族的fluid液体；流动的anyhow无论如何；总之
+
+===== Page 8 =====
+fraction 部分；分数；少量  frontier 边境；前沿；边疆  atmosphere 气氛；大气；氛围  frustrate 使沮丧；挫败；阻挠  grateful 感激的；感谢的  grief 悲伤；悲痛  ancient 古代的；古老的  harmony 和谐；融洽  architecture 建筑；建筑学  haul 拖；拉；运送  agency 机构；代理处  holy 神圣的；圣洁的  honesty 诚实；正直  container 容器；集装箱  horizon 地平线；眼界  host 主人；主持；宿主  humanity 人类；人性；人道  deficiency 缺乏；不足；缺陷  humble 谦逊的；简陋的  identification 识别；身份证明  sightseeing 观光；游览  immune 免疫的；不受影响的  implicit 含蓄的；暗示的  audience 观众；听众  impulse 冲动；推动力  wrap 包裹；缠绕  ====Lesson 11 单词+释义=====  induce 诱导；引起；导致  bow 鞠躬；弓；弯腰  insane 疯狂的；精神失常的  integrity 正直；完整；诚信  intensify 加强；加剧；强化
+
+breakthrough 突破；重大进展interact 相互作用；交流interaction 互动；相互作用joint 共同的；关节；连接处catalog(ue)目录；编入目录journal 期刊；日记；杂志judgment 判断；判断力entry 进入；入口；条目justification 正当理由；辩护latter 后者；后半的liberty 自由；自主certainty 确定；必然的事liquid 液体；液态的literary 文学的；爱好文学的explosion 爆炸；激增local 当地的；本地的lump 块；肿块；成团luxury 奢侈品；奢华magnetic 有磁性的；有吸引力的male 男性的；雄性的management 管理；经营inherent 内在的；固有的mankind 人类channel 渠道；频道；通道manipulate 操纵；操控；处理married 已婚的mate 伙伴；配偶；配对meantime 同时；其间afterward(s) 后来；之后mechanic 技工；机械师mere 仅仅；只不过commence 开始；启动migrate 迁徙；移居
+
+===== Page 9 =====
+mirror 镜子；反映  mobile 移动的；便携的  consultant 顾问；咨询师  moderate 适度的；温和的  adult 成年人；成熟的  modify 修改；更改；修饰  multiply 繁殖；增加；相乘  nasty 恶劣的；令人不快的  nevertheless 然而；不过  compensation 补偿；赔偿金  norm 规范；标准  persuasion 说服；劝说  notion 概念；想法；观念  nourish 滋养；养育；滋养  nuclear 核的；原子核的  origin 起源；源头；出身  percentage 百分比；百分率  outcome 结果；成果  overseas 海外的；在海外  cupboard 橱柜；壁柜  overwhelm 压倒；使不知所措  pave 铺设；铺路  plague 瘟疫；灾害；困扰  dean 院长；系主任  product 产品；产物  rail 栏杆；铁轨  productive 多产的；富有成效的  dimension 维度；方面；尺寸  prosperity 繁荣；兴旺  quest 追求；探寻  reader 读者；读物  punishment 惩罚；处罚  region 地区；区域
+
+rigid 严格的；僵硬的compensate 补偿；赔偿rob 抢劫；掠夺scrape 刮；擦；艰难谋生seemingly 看似；表面上remark 评论；言论social 社会的；社交的sour 酸的；发酸的spontaneous 自发的；自然的====Lesson 12 单词+释义=====council 委员会；议会；理事会stability 稳定；稳固stagger 摇晃；蹒跚；使震惊rhythm 节奏；韵律strap 带子；捆扎stripe 条纹；种类barber 理发师submerge 淹没；潜入水中administration 管理；行政部门substitute 代替；替代品subtle 微妙的；细微的automatic 自动的；无意识的subtract 减去；扣除suck 吮吸；吸收sum 总和；总计；总结burden 负担；重担superficial 表面的；肤浅的supplement 补充；增补；附录technology 科技；技术surge 激增；汹涌survey 调查；勘测；审视symbol 象征；符号
+
+===== Page 10 =====
+approximately 大约; 近似sympathetic 同情的; 赞同的sympathy 同情; 同情心tag 标签; 标记; 附加target 目标; 靶子fertilizer 肥料tax 税收; 征税textbook 教科书; 课本defy 违抗; 藐视; 挑战theory 理论; 学说thereby 因此; 从而engineering 工程; 工程学threat 威胁; 恐吓thrill 使激动; 兴奋elsewhere 在别处; 到别处trail 痕迹; 追踪; 小径transaction 交易; 办理depict 描绘; 描述translation 翻译; 译文engine 发动机; 引擎fabric 织物; 布料; 结构transportation 运输; 交通tremendous 巨大的; 极好的equality 平等; 相等trend 趋势; 潮流fake 伪造的; 假货tune 曲调; 调音twist 扭转; 扭曲unfair 不公平的evil 邪恶的; 罪恶utter 完全的; 说出vehicle 车辆; 交通工具venture 冒险; 企业
+
+foundation 基础; 基金会; 地基executive 行政的; 高管vertical 垂直的; 直立的via 通过; 经由frame 框架; 结构; 构建visible 可见的; 明显的freight 货运; 货物vital 至关重要的; 生命的enroll 注册; 入学; 招收vivid 生动的; 鲜明的artistic 艺术的; 有艺术感的volume 音量; 卷; 体积warmth 温暖; 热情whoever 无论谁; 任何人cycle 循环; 周期; 自行车width 宽度; 广度worthy 值得的; 有价值的acre 英亩wrap 包裹; 缠绕abnormal 反常的; 异常的yield 产出; 屈服; 让步forth 向前; 往外investment 投资enthusiasm 热情; 热忱fraud 欺诈; 骗子
+`;
+
+// 解析PDF文本，提取单词和释义
+function parseWordsFromPDF(text) {
+    // 清理并分割
+    let lines = text.split(/\r?\n/);
+    let wordMap = new Map(); // 避免重复
+    // 匹配模式：单词 空格 释义 (可能多空格或分号)
+    // 也处理"单词 释义"中间有多个空格或制表符
+    const regex = /([a-zA-Z\-\(\)]+)\s+([\u4e00-\u9fa5;；，、\s]+)/;
+    // 额外处理"单词 释义"但释义可能包含空格和标点
+    for (let line of lines) {
+        line = line.trim();
+        if (!line) continue;
+        if (line.startsWith('====') || line.startsWith('Page') || line.startsWith('Lesson') || /^\d+$/.test(line)) continue;
+        // 尝试匹配单词和释义
+        let match = line.match(regex);
+        if (match) {
+            let word = match[1].trim().toLowerCase();
+            let meaning = match[2].trim().replace(/[\s]+/g, ' ').replace(/；/g, '；');
+            if (word && meaning && !wordMap.has(word)) {
+                wordMap.set(word, meaning);
+            }
+        } else {
+            // 有些词是"word1 释义1 word2 释义2"连续排列，如"blank 空白的 obvious 明显的"
+            let parts = line.split(/\s{2,}/); // 按两个以上空格分割
+            for (let part of parts) {
+                let subMatch = part.match(/([a-zA-Z\-\(\)]+)\s+([\u4e00-\u9fa5;；，、]+)/);
+                if (subMatch) {
+                    let word = subMatch[1].trim().toLowerCase();
+                    let meaning = subMatch[2].trim();
+                    if (word && meaning && !wordMap.has(word)) wordMap.set(word, meaning);
+                }
+            }
+        }
+    }
+    // 额外补充：有些词条没有正确匹配，例如 "comprise 包含; 由____组成" 上面已包含
+    // 将 Map 转为数组
+    let result = [];
+    for (let [word, meaning] of wordMap.entries()) {
+        result.push({ word, meaning, phonetic: '', example: `请用“${word}”造句练习` });
+    }
+    // 按单词字母排序
+    result.sort((a,b)=>a.word.localeCompare(b.word));
+    console.log(`解析到 ${result.length} 个单词`);
+    return result;
 }
 
-// 更新错题本 UI
+const fullVocabulary = parseWordsFromPDF(PDF_RAW_TEXT);
+const totalWords = fullVocabulary.length;
+console.assert(totalWords > 0, "词库为空，请检查解析逻辑");
+if (totalWords === 0) {
+    // 后备词库，防止解析失败
+    fullVocabulary.push({ word: "example", meaning: "例子；范例", phonetic: "", example: "This is an example." });
+}
+
+// ------------------- localStorage 学习数据 -------------------
+const STORAGE = {
+    MASTERY: 'pdf_word_mastery',
+    WRONG: 'pdf_wrong_words',
+    STUDY_LOG: 'pdf_study_log',
+    LAST_REVIEW: 'pdf_last_review',
+    HISTORY: 'pdf_history'
+};
+let mastery = JSON.parse(localStorage.getItem(STORAGE.MASTERY)) || {};
+let wrongList = JSON.parse(localStorage.getItem(STORAGE.WRONG)) || [];
+let studyLog = JSON.parse(localStorage.getItem(STORAGE.STUDY_LOG)) || {};
+let lastReview = JSON.parse(localStorage.getItem(STORAGE.LAST_REVIEW)) || {};
+
+const EBBINGHAUS = [1, 2, 4, 7, 15, 30];
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function logStudy() { let date = todayStr(); studyLog[date] = (studyLog[date] || 0) + 1; localStorage.setItem(STORAGE.STUDY_LOG, JSON.stringify(studyLog)); updateChart(); }
+
+// 错题本
 function updateWrongListUI() {
     let container = document.getElementById('wrongList');
     if(!wrongList.length) { container.innerHTML = '<li>暂无错词，加油！</li>'; return; }
     container.innerHTML = wrongList.map(word => `<li data-word="${word}">${word}</li>`).join('');
     document.querySelectorAll('#wrongList li').forEach(li => {
-        li.addEventListener('click', () => {
-            let word = li.dataset.word;
-            if(word) loadWordByName(word, true);
-        });
+        li.addEventListener('click', () => { let w = li.dataset.word; let idx = wordList.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } });
     });
 }
+function addToWrongList(word) { if(!wrongList.includes(word)) { wrongList.push(word); localStorage.setItem(STORAGE.WRONG, JSON.stringify(wrongList)); updateWrongListUI(); } }
+function removeFromWrongList(word) { wrongList = wrongList.filter(w => w !== word); localStorage.setItem(STORAGE.WRONG, JSON.stringify(wrongList)); updateWrongListUI(); }
 
-function addToWrongList(word) {
-    if(!wrongList.includes(word)) {
-        wrongList.push(word);
-        localStorage.setItem(STORAGE_KEYS.WRONG, JSON.stringify(wrongList));
-        updateWrongListUI();
-    }
-}
-
-function removeFromWrongList(word) {
-    wrongList = wrongList.filter(w => w !== word);
-    localStorage.setItem(STORAGE_KEYS.WRONG, JSON.stringify(wrongList));
-    updateWrongListUI();
-}
-
-// 更新掌握度星级
+// 掌握度星级
 function updateMasteryStars() {
     let currentWord = wordList[currentIndex]?.word;
     if(!currentWord) return;
     let score = mastery[currentWord] || 1;
-    for(let i=1;i<=5;i++){
-        let star = document.querySelector(`.star[data-score='${i}']`);
-        if(i <= score) { star.innerHTML = '★'; star.classList.add('active'); }
-        else { star.innerHTML = '☆'; star.classList.remove('active'); }
-    }
-    // 艾宾浩斯提醒
+    for(let i=1;i<=5;i++){ let star = document.querySelector(`.star[data-score='${i}']`); if(i <= score) { star.innerHTML = '★'; star.classList.add('active'); } else { star.innerHTML = '☆'; star.classList.remove('active'); } }
     let last = lastReview[currentWord];
-    if(last){
-        let daysPassed = Math.floor((Date.now() - last) / (1000*3600*24));
-        let nextInterval = EBBINGHAUS.find(interval => interval > daysPassed);
-        if(nextInterval) document.getElementById('reviewHint').innerHTML = `📅 建议 ${nextInterval - daysPassed} 天后复习 (艾宾浩斯)`;
-        else document.getElementById('reviewHint').innerHTML = `✅ 已熟练掌握，继续巩固`;
-    } else {
-        document.getElementById('reviewHint').innerHTML = `⭐ 点击星级标记掌握度，系统将安排复习`;
-    }
+    if(last){ let daysPassed = Math.floor((Date.now() - last) / (1000*3600*24)); let nextInterval = EBBINGHAUS.find(interval => interval > daysPassed); if(nextInterval) document.getElementById('reviewHint').innerHTML = `📅 建议 ${nextInterval - daysPassed} 天后复习 (艾宾浩斯)`; else document.getElementById('reviewHint').innerHTML = `✅ 已熟练掌握，继续巩固`; }
+    else { document.getElementById('reviewHint').innerHTML = `⭐ 点击星级标记掌握度，系统将安排复习`; }
 }
-
-function setMastery(score) {
-    let currentWord = wordList[currentIndex]?.word;
-    if(!currentWord) return;
-    mastery[currentWord] = score;
-    localStorage.setItem(STORAGE_KEYS.MASTERY, JSON.stringify(mastery));
-    lastReview[currentWord] = Date.now();
-    localStorage.setItem(STORAGE_KEYS.LAST_REVIEW, JSON.stringify(lastReview));
-    logStudy();
-    updateMasteryStars();
-}
-
-// 星级点击
-document.querySelectorAll('.star').forEach(star => {
-    star.addEventListener('click', (e) => {
-        let score = parseInt(star.dataset.score);
-        setMastery(score);
-    });
-});
+function setMastery(score) { let w = wordList[currentIndex]?.word; if(!w) return; mastery[w] = score; localStorage.setItem(STORAGE.MASTERY, JSON.stringify(mastery)); lastReview[w] = Date.now(); localStorage.setItem(STORAGE.LAST_REVIEW, JSON.stringify(lastReview)); logStudy(); updateMasteryStars(); }
+document.querySelectorAll('.star').forEach(star => { star.addEventListener('click', (e) => { let score = parseInt(star.dataset.score); setMastery(score); }); });
 
 // 学习曲线图表
 let chart;
 function updateChart() {
     let labels = [], data = [];
     let now = new Date();
-    for(let i=6; i>=0; i--){
-        let d = new Date(now); d.setDate(now.getDate()-i);
-        let ds = d.toISOString().slice(0,10);
-        labels.push(ds.slice(5));
-        data.push(studyLog[ds] || 0);
-    }
+    for(let i=6; i>=0; i--){ let d = new Date(now); d.setDate(now.getDate()-i); let ds = d.toISOString().slice(0,10); labels.push(ds.slice(5)); data.push(studyLog[ds] || 0); }
     if(chart) chart.destroy();
     let ctx = document.getElementById('studyChart').getContext('2d');
     chart = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'每日学习单词数', data, borderColor:'#2c4c7c', tension:0.2 }] } });
 }
 
-// ---------- API 调用 ----------
-async function fetchWordFromAPI(word) {
-    // 检查缓存
-    if(wordCache[word]) {
-        return wordCache[word];
-    }
-    try {
-        const url = `https://v2.xxapi.cn/api/englishwords?word=${encodeURIComponent(word)}`;
-        const response = await fetch(url);
-        const result = await response.json();
-        if(result.code === 200 && result.data) {
-            const data = result.data;
-            // 构建标准单词对象
-            const wordObj = {
-                word: data.word || word,
-                phonetic: data.ukphone ? `/ˈ${data.ukphone}/` : (data.usphone ? `/ˈ${data.usphone}/` : '/wɜːd/'),
-                meaning: extractMeaning(data),
-                example: data.sentences && data.sentences[0] ? data.sentences[0].s_content : `Example sentence for ${word}.`,
-                extra: {
-                    phrases: data.phrases || [],
-                    synonyms: data.synonyms || [],
-                    ukSpeech: data.ukspeech,
-                    usSpeech: data.usspeech
-                }
-            };
-            // 存入缓存
-            wordCache[word] = wordObj;
-            localStorage.setItem(STORAGE_KEYS.WORD_CACHE, JSON.stringify(wordCache));
-            return wordObj;
-        }
-        return null;
-    } catch(error) {
-        console.error('API error:', error);
-        return null;
-    }
-}
-
-function extractMeaning(data) {
-    if(data.translations && data.translations[0]) {
-        return `${data.translations[0].pos || ''} ${data.translations[0].tran_cn || ''}`.trim();
-    }
-    return data.word || '未知释义';
-}
-
-// 加载单词（从 API 或缓存）
-async function loadWordByName(word, addToList = true) {
-    // 显示加载中
-    document.getElementById('currentWord').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> 加载中...';
-    
-    const wordObj = await fetchWordFromAPI(word);
-    if(!wordObj) {
-        document.getElementById('currentWord').innerHTML = '未找到该单词';
-        return false;
-    }
-    
-    if(addToList) {
-        // 检查是否已在列表中
-        let existingIndex = wordList.findIndex(w => w.word === word);
-        if(existingIndex !== -1) {
-            currentIndex = existingIndex;
-        } else {
-            wordList.push(wordObj);
-            currentIndex = wordList.length - 1;
-        }
-    } else {
-        // 临时替换当前显示的单词（不加入列表）
-        wordList[currentIndex] = wordObj;
-    }
-    
-    updateWordUI();
-    return true;
-}
-
-// 随机单词
-async function randomWordFromAPI() {
-    // 从种子词中随机选一个
-    const randomSeed = SEED_WORDS[Math.floor(Math.random() * SEED_WORDS.length)];
-    await loadWordByName(randomSeed, true);
-}
-
-// ---------- UI 更新 ----------
-function updateWordUI() {
-    if(!wordList.length || !wordList[currentIndex]) return;
-    const w = wordList[currentIndex];
-    document.getElementById('currentWord').innerHTML = w.word;
-    document.getElementById('currentPhonetic').innerHTML = w.phonetic;
-    document.getElementById('counterText').innerHTML = `第${currentIndex+1}/${wordList.length}词`;
-    
-    if(!spellMode){
-        if(meaningVisible){
-            document.getElementById('chineseDef').innerHTML = w.meaning;
-            document.getElementById('exampleSent').innerHTML = w.example;
-            // 显示额外信息
-            let extraHtml = '';
-            if(w.extra?.phrases && w.extra.phrases.length) {
-                extraHtml += `<div><strong>📖 短语：</strong> ${w.extra.phrases.slice(0,3).map(p => p.p_content).join(', ')}</div>`;
-            }
-            document.getElementById('extraInfo').innerHTML = extraHtml;
-            document.getElementById('meaningPlaceholder').style.display = 'none';
-            document.getElementById('meaningReal').style.display = 'block';
-        } else {
-            document.getElementById('meaningPlaceholder').style.display = 'block';
-            document.getElementById('meaningReal').style.display = 'none';
-        }
-    } else {
-        hideMeaningAndShowSpell();
-    }
-    updateMasteryStars();
-}
-
-function showMeaning() { meaningVisible=true; updateWordUI(); }
-function hideMeaning() { meaningVisible=false; updateWordUI(); }
-function toggleMeaning() { if(spellMode) return; meaningVisible=!meaningVisible; updateWordUI(); }
-
-function nextWord() {
-    if(wordList.length === 0) return;
-    currentIndex = (currentIndex + 1) % wordList.length;
-    meaningVisible = false;
-    updateWordUI();
-    if(spellMode) hideMeaningAndShowSpell();
-}
-
-function prevWord() {
-    if(wordList.length === 0) return;
-    currentIndex = (currentIndex - 1 + wordList.length) % wordList.length;
-    meaningVisible = false;
-    updateWordUI();
-    if(spellMode) hideMeaningAndShowSpell();
-}
-
 // 拼写模式
+let spellMode = false;
 function hideMeaningAndShowSpell() {
     if(!wordList[currentIndex]) return;
     const w = wordList[currentIndex];
@@ -434,27 +391,24 @@ function hideMeaningAndShowSpell() {
     document.getElementById('spellFeedback').innerHTML = '';
     document.getElementById('revealBtn').disabled = true;
 }
-
 function showNormalMode() {
     document.getElementById('meaningPlaceholder').style.display = meaningVisible ? 'none' : 'block';
     document.getElementById('meaningReal').style.display = meaningVisible ? 'block' : 'none';
     document.getElementById('spellModeArea').style.display = 'none';
     document.getElementById('revealBtn').disabled = false;
 }
-
 function toggleSpellMode() {
     spellMode = !spellMode;
     if(spellMode) hideMeaningAndShowSpell();
     else showNormalMode();
     document.getElementById('modeSwitchBtn').innerHTML = spellMode ? '<i class="fas fa-eye"></i> 闪卡模式' : '<i class="fas fa-exchange-alt"></i> 拼写模式';
 }
-
 function checkSpell() {
     if(!wordList[currentIndex]) return;
     let user = document.getElementById('spellInput').value.trim().toLowerCase();
     let correct = wordList[currentIndex].word.toLowerCase();
     if(user === correct) {
-        document.getElementById('spellFeedback').innerHTML = '<span style="color:green;">✅ 完全正确！</span>';
+        document.getElementById('spellFeedback').innerHTML = '<span style="color:green;">✅ 完全正确！已从错题本移除（如有）</span>';
         removeFromWrongList(correct);
         let cur = mastery[correct] || 1;
         if(cur < 5) setMastery(cur+1);
@@ -465,138 +419,112 @@ function checkSpell() {
         if(cur > 1) setMastery(cur-1);
     }
 }
-
-function revealAnswer() {
-    if(!wordList[currentIndex]) return;
-    document.getElementById('spellFeedback').innerHTML = `🔎 正确答案: ${wordList[currentIndex].word}`;
-}
+function revealAnswer() { if(wordList[currentIndex]) document.getElementById('spellFeedback').innerHTML = `🔎 正确答案: ${wordList[currentIndex].word}`; }
 
 // 发音
-function speak(lang) {
-    if(!wordList[currentIndex]) return;
-    let word = wordList[currentIndex].word;
-    let utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = lang;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
-}
+function speak(lang) { if(!wordList[currentIndex]) return; let utterance = new SpeechSynthesisUtterance(wordList[currentIndex].word); utterance.lang = lang; speechSynthesis.cancel(); speechSynthesis.speak(utterance); }
 
 // 发音准确度
 let recognition;
-function initRecognition() {
-    if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert("不支持语音识别"); return null; }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let rec = new SpeechRecognition();
-    rec.lang = 'en-US';
-    rec.interimResults = false;
-    rec.maxAlternatives = 1;
-    return rec;
-}
+function initRecognition() { if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert("不支持语音识别"); return null; } const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = new SpeechRecognition(); rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1; return rec; }
+function pronounceAccuracy() { if(!recognition) recognition = initRecognition(); if(!recognition) return; recognition.start(); recognition.onresult = (event) => { let spoken = event.results[0][0].transcript.toLowerCase().trim(); let target = wordList[currentIndex]?.word.toLowerCase() || ''; if(spoken === target) alert(`🎉 完美！发音准确率100%`); else if(spoken.includes(target) || target.includes(spoken)) alert(`👍 接近正确！ (你说: ${spoken})`); else alert(`❌ 发音有误，正确: ${target} (你说: ${spoken})`); }; recognition.onerror = () => alert("请检查麦克风权限"); }
 
-function pronounceAccuracy() {
-    if(!recognition) recognition = initRecognition();
-    if(!recognition) return;
-    recognition.start();
-    recognition.onresult = (event) => {
-        let spoken = event.results[0][0].transcript.toLowerCase().trim();
-        let target = wordList[currentIndex]?.word.toLowerCase() || '';
-        if(spoken === target) alert(`🎉 完美！发音准确率100%`);
-        else if(spoken.includes(target) || target.includes(spoken)) alert(`👍 接近正确！ (你说: ${spoken})`);
-        else alert(`❌ 发音有误，正确: ${target} (你说: ${spoken})`);
-    };
-    recognition.onerror = () => alert("请检查麦克风权限");
-}
+// 核心变量
+let wordList = [...fullVocabulary];  // 直接使用全部解析出的单词
+let currentIndex = 0;
+let meaningVisible = false;
+let autoSpeakEnabled = true;
+let currentSpeakTimer = null;
 
-// 搜索功能
-const searchModal = document.getElementById('searchModal');
+// UI更新
+function updateWordUI() {
+    if(!wordList.length) return;
+    const w = wordList[currentIndex];
+    document.getElementById('currentWord').innerHTML = w.word;
+    document.getElementById('currentPhonetic').innerHTML = w.phonetic || '/haɪ friːkwənsi/';
+    document.getElementById('counterText').innerHTML = `第${currentIndex+1} / ${wordList.length}词`;
+    if(!spellMode){
+        if(meaningVisible){
+            document.getElementById('chineseDef').innerHTML = w.meaning;
+            document.getElementById('exampleSent').innerHTML = w.example;
+            document.getElementById('extraInfo').innerHTML = '';
+            document.getElementById('meaningPlaceholder').style.display = 'none';
+            document.getElementById('meaningReal').style.display = 'block';
+        } else {
+            document.getElementById('meaningPlaceholder').style.display = 'block';
+            document.getElementById('meaningReal').style.display = 'none';
+        }
+    } else {
+        hideMeaningAndShowSpell();
+    }
+    updateMasteryStars();
+    // 自动发音
+    if(autoSpeakEnabled && !spellMode) {
+        if(currentSpeakTimer) clearTimeout(currentSpeakTimer);
+        currentSpeakTimer = setTimeout(() => { speak('en-GB'); }, 200);
+    }
+}
+function showMeaning() { meaningVisible=true; updateWordUI(); }
+function hideMeaning() { meaningVisible=false; updateWordUI(); }
+function toggleMeaning() { if(spellMode) return; meaningVisible=!meaningVisible; updateWordUI(); }
+function nextWord() { if(wordList.length===0) return; currentIndex = (currentIndex+1)%wordList.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+function prevWord() { if(wordList.length===0) return; currentIndex = (currentIndex-1+wordList.length)%wordList.length; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+
+// 搜索
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const searchResultsList = document.getElementById('searchResultsList');
-
 function performSearch() {
     let keyword = searchInput.value.trim().toLowerCase();
-    if(keyword === "") { alert("请输入要搜索的单词"); return; }
-    // 直接尝试加载该单词
-    searchModal.style.display = 'none';
-    loadWordByName(keyword, true);
+    if(!keyword) { alert("请输入单词"); return; }
+    let idx = wordList.findIndex(w => w.word === keyword);
+    if(idx !== -1) { currentIndex = idx; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
+    else { alert(`未找到单词“${keyword}”`); }
 }
-
 searchBtn.addEventListener('click', performSearch);
 searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
-closeModalBtn.addEventListener('click', () => { searchModal.style.display = 'none'; });
-window.addEventListener('click', (e) => { if(e.target === searchModal) searchModal.style.display = 'none'; });
 
 // 手势翻页
 let touchStartX = 0;
 document.querySelector('.master-card').addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
-document.querySelector('.master-card').addEventListener('touchend', (e) => {
-    let endX = e.changedTouches[0].screenX;
-    if(endX - touchStartX > 50) prevWord();
-    else if(touchStartX - endX > 50) nextWord();
-});
+document.querySelector('.master-card').addEventListener('touchend', (e) => { let endX = e.changedTouches[0].screenX; if(endX - touchStartX > 50) prevWord(); else if(touchStartX - endX > 50) nextWord(); });
 
 // 深色模式
 function toggleDark(){ document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
 if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-
-// 字体调节
 let fontRange = document.getElementById('fontRange');
 fontRange.addEventListener('input', (e)=>{ let size = e.target.value; document.querySelector('.en-word').style.fontSize = `${size*2.2}rem`; });
 
+// 自动发音开关
+const autoCheck = document.getElementById('autoSpeakCheckbox');
+autoCheck.addEventListener('change', (e) => { autoSpeakEnabled = e.target.checked; });
+
+// 绑定事件
+document.getElementById('revealBtn').addEventListener('click', toggleMeaning);
+document.getElementById('speakUkBtn').addEventListener('click', ()=>speak('en-GB'));
+document.getElementById('speakUsBtn').addEventListener('click', ()=>speak('en-US'));
+document.getElementById('prevBtn').addEventListener('click', prevWord);
+document.getElementById('nextBtn').addEventListener('click', nextWord);
+document.getElementById('darkModeBtn').addEventListener('click', toggleDark);
+document.getElementById('modeSwitchBtn').addEventListener('click', toggleSpellMode);
+document.getElementById('checkSpellBtn').addEventListener('click', checkSpell);
+document.getElementById('revealAnswerBtn').addEventListener('click', revealAnswer);
+document.getElementById('pronounceAccuracyBtn').addEventListener('click', pronounceAccuracy);
+document.getElementById('reviewWrongBtn').addEventListener('click', () => { if(wrongList.length) { let w = wrongList[0]; let idx = wordList.findIndex(item=>item.word===w); if(idx!==-1) { currentIndex=idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } } });
+
+window.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowLeft'){ prevWord(); e.preventDefault(); }
+    else if(e.key === 'ArrowRight'){ nextWord(); e.preventDefault(); }
+    else if(e.key === ' ' && !spellMode){ toggleMeaning(); e.preventDefault(); }
+});
+
 // 初始化
-async function init() {
-    // 绑定事件
-    document.getElementById('revealBtn').addEventListener('click', toggleMeaning);
-    document.getElementById('speakUkBtn').addEventListener('click', ()=>speak('en-GB'));
-    document.getElementById('speakUsBtn').addEventListener('click', ()=>speak('en-US'));
-    document.getElementById('randomApiBtn').addEventListener('click', randomWordFromAPI);
-    document.getElementById('prevBtn').addEventListener('click', prevWord);
-    document.getElementById('nextBtn').addEventListener('click', nextWord);
-    document.getElementById('darkModeBtn').addEventListener('click', toggleDark);
-    document.getElementById('modeSwitchBtn').addEventListener('click', toggleSpellMode);
-    document.getElementById('checkSpellBtn').addEventListener('click', checkSpell);
-    document.getElementById('revealAnswerBtn').addEventListener('click', revealAnswer);
-    document.getElementById('pronounceAccuracyBtn').addEventListener('click', pronounceAccuracy);
-    document.getElementById('reviewWrongBtn').addEventListener('click', () => {
-        if(wrongList.length) loadWordByName(wrongList[0], true);
-    });
-    
-    window.addEventListener('keydown', (e)=>{
-        if(e.key === 'ArrowLeft'){ prevWord(); e.preventDefault(); }
-        else if(e.key === 'ArrowRight'){ nextWord(); e.preventDefault(); }
-        else if(e.key === ' ' && !spellMode){ toggleMeaning(); e.preventDefault(); }
-    });
-    
-    // 加载初始单词列表
-    for(let seed of SEED_WORDS.slice(0, 50)) {
-        const cached = wordCache[seed];
-        if(cached) {
-            wordList.push(cached);
-        } else {
-            const fetched = await fetchWordFromAPI(seed);
-            if(fetched) wordList.push(fetched);
-        }
-    }
-    
-    if(wordList.length === 0) {
-        // 如果全部失败，至少加载一个
-        const fallback = await fetchWordFromAPI('test');
-        if(fallback) wordList.push(fallback);
-    }
-    
-    currentIndex = 0;
-    meaningVisible = false;
-    updateWordUI();
-    updateWrongListUI();
-    updateChart();
-}
+updateWordUI();
+updateWrongListUI();
+updateChart();
 
-init();
-
-// PWA
+// PWA 简单注册
 if ('serviceWorker' in navigator) {
-    const swCode = `const CACHE='word-v6'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+    const swCode = `const CACHE='pdf-v1'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
     const blob = new Blob([swCode], {type:'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob));
 }
