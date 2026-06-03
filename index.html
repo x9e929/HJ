@@ -4,267 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="theme-color" content="#2c4c7c">
-    <meta name="description" content="智能单词学习 · 艾宾浩斯复习 · 拼写测试 · 学习曲线 · 错题本 · 单词搜索">
-    <link rel="manifest" href="manifest.json">
-    <title>智能单词本 · 艾宾浩斯复习+拼写测试+学习曲线+单词搜索</title>
-    <!-- Chart.js 轻量图表库 -->
+    <meta name="description" content="智能单词学习 · 基于API · 艾宾浩斯复习 · 拼写测试 · 学习曲线 · 错题本">
+    <title>智能单词本 · API海量词库 | 艾宾浩斯复习</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* ---------- CSS 变量：深色模式 + 字体控制 ---------- */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
-            --bg-gradient-start: #f1f5f9;
-            --bg-gradient-end: #e6edf6;
-            --card-bg: rgba(255, 255, 255, 0.97);
-            --card-border: #eef3fc;
-            --text-primary: #0A2E4A;
-            --text-secondary: #4a627e;
-            --text-soft: #54708f;
-            --def-color: #1f3b62;
-            --example-border: #7f9bc5;
-            --btn-primary-bg: #2c4c7c;
-            --btn-primary-hover: #1f3a60;
-            --btn-outline-border: #cbdae9;
-            --btn-outline-color: #2c4c7c;
-            --chip-bg: #eef3ff;
-            --chip-color: #1f4870;
-            --placeholder-color: #89a0c0;
-            --footer-border: #e9f0f6;
-            --modal-bg: white;
-            --modal-text: #1f2937;
+            --bg-start: #f1f5f9; --bg-end: #e6edf6; --card-bg: rgba(255,255,255,0.97);
+            --card-border: #eef3fc; --text-primary: #0A2E4A; --text-secondary: #4a627e;
+            --text-soft: #54708f; --def-color: #1f3b62; --example-border: #7f9bc5;
+            --btn-primary-bg: #2c4c7c; --btn-primary-hover: #1f3a60; --btn-outline-border: #cbdae9;
+            --chip-bg: #eef3ff; --chip-color: #1f4870; --placeholder-color: #89a0c0;
+            --modal-bg: white; --modal-text: #1f2937;
         }
         body.dark {
-            --bg-gradient-start: #1a202c;
-            --bg-gradient-end: #2d3748;
-            --card-bg: #2d3748;
-            --card-border: #4a5568;
-            --text-primary: #f7fafc;
-            --text-secondary: #cbd5e0;
-            --text-soft: #a0aec0;
-            --def-color: #e2e8f0;
-            --example-border: #718096;
-            --btn-primary-bg: #4a6fa5;
-            --btn-primary-hover: #2c5282;
-            --btn-outline-border: #4a5568;
-            --btn-outline-color: #cbd5e0;
-            --chip-bg: #2d3748;
-            --chip-color: #cbd5e0;
-            --placeholder-color: #a0aec0;
-            --footer-border: #4a5568;
-            --modal-bg: #2d3748;
-            --modal-text: #f7fafc;
+            --bg-start: #1a202c; --bg-end: #2d3748; --card-bg: #2d3748; --card-border: #4a5568;
+            --text-primary: #f7fafc; --text-secondary: #cbd5e0; --text-soft: #a0aec0;
+            --def-color: #e2e8f0; --example-border: #718096; --btn-primary-bg: #4a6fa5;
+            --btn-primary-hover: #2c5282; --btn-outline-border: #4a5568; --btn-outline-color: #cbd5e0;
+            --chip-bg: #2d3748; --chip-color: #cbd5e0; --placeholder-color: #a0aec0;
+            --modal-bg: #2d3748; --modal-text: #f7fafc;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            font-family: system-ui, 'Segoe UI', 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-            min-height: 100vh;
-            padding: 1.2rem;
-            transition: background 0.3s, color 0.3s;
-            color: var(--text-primary);
-        }
-        .master-card {
-            max-width: 950px;
-            width: 100%;
-            margin: 0 auto;
-            background: var(--card-bg);
-            border-radius: 60px;
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            border: 1px solid var(--card-border);
-            transition: background 0.3s;
-        }
-        .header {
-            padding: 1.2rem 1.5rem 0.8rem;
-            text-align: center;
-            border-bottom: 1px solid var(--card-border);
-        }
+        body { font-family: system-ui, 'Inter', sans-serif; background: linear-gradient(135deg, var(--bg-start), var(--bg-end)); min-height: 100vh; padding: 1rem; transition: background 0.3s; color: var(--text-primary); }
+        .master-card { max-width: 950px; margin: 0 auto; background: var(--card-bg); border-radius: 56px; overflow: hidden; border: 1px solid var(--card-border); }
+        .header { padding: 1rem 1.2rem 0.6rem; text-align: center; border-bottom: 1px solid var(--card-border); }
         .header h1 { font-size: 1.8rem; background: linear-gradient(120deg, #1E2F5E, #2B4F8C); background-clip: text; -webkit-background-clip: text; color: transparent; }
         body.dark .header h1 { background: linear-gradient(120deg, #90cdf4, #63b3ed); background-clip: text; -webkit-background-clip: text; color: transparent; }
-        .sub { color: var(--text-soft); font-size: 0.85rem; margin-top: 4px; }
-        /* 控制栏 */
-        .control-bar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            background: rgba(0,0,0,0.02);
-            border-bottom: 1px solid var(--card-border);
-        }
-        .ctrl-btn {
-            background: var(--chip-bg);
-            border: none;
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--chip-color);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .font-slider {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--chip-bg);
-            padding: 4px 12px;
-            border-radius: 40px;
-        }
-        .font-slider label { font-size: 0.7rem; color: var(--chip-color); }
-        #fontRange { width: 100px; }
-        /* 搜索框 */
-        .search-area {
-            display: inline-flex;
-            gap: 6px;
-            background: var(--chip-bg);
-            padding: 4px 12px;
-            border-radius: 40px;
-            align-items: center;
-        }
-        .search-area input {
-            background: transparent;
-            border: none;
-            outline: none;
-            padding: 6px 8px;
-            color: var(--text-primary);
-            width: 130px;
-            font-size: 0.8rem;
-        }
-        .search-area button {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            color: var(--chip-color);
-        }
-        /* 单词区 */
-        .word-zone { padding: 1.5rem 1.5rem 0.8rem; text-align: center; }
-        .word-paper {
-            background: var(--card-bg);
-            border-radius: 48px;
-            padding: 1.8rem 1rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            border: 1px solid var(--card-border);
-        }
-        .en-word { font-size: 3.2rem; font-weight: 800; color: var(--text-primary); word-break: break-word; transition: font-size 0.1s; }
-        .phonetic-txt { background: var(--chip-bg); display: inline-block; padding: 0.2rem 1.2rem; border-radius: 40px; font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px; }
-        .word-counter { margin-top: 12px; font-size: 0.8rem; background: var(--chip-bg); display: inline-block; padding: 4px 16px; border-radius: 30px; }
-        /* 掌握度星级 */
-        .mastery-stars {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin: 12px 0 8px;
-        }
-        .star {
-            font-size: 1.6rem;
-            cursor: pointer;
-            color: #ccc;
-            transition: 0.1s;
-        }
-        .star.active { color: #f5b042; text-shadow: 0 0 2px orange; }
+        .sub { color: var(--text-soft); font-size: 0.8rem; }
+        .control-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 8px 12px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--card-border); align-items: center; }
+        .ctrl-btn, .search-area { background: var(--chip-bg); border: none; padding: 5px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 500; color: var(--chip-color); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+        .font-slider { display: flex; align-items: center; gap: 6px; background: var(--chip-bg); padding: 4px 12px; border-radius: 40px; }
+        #fontRange { width: 90px; }
+        .search-area input { background: transparent; border: none; outline: none; color: var(--text-primary); width: 130px; font-size: 0.8rem; }
+        .word-zone { padding: 1.2rem 1rem 0.5rem; text-align: center; }
+        .word-paper { background: var(--card-bg); border-radius: 48px; padding: 1.5rem 0.8rem; border: 1px solid var(--card-border); }
+        .en-word { font-size: 2.8rem; font-weight: 800; color: var(--text-primary); word-break: break-word; }
+        .phonetic-txt { background: var(--chip-bg); display: inline-block; padding: 0.2rem 1rem; border-radius: 40px; font-size: 0.8rem; margin-top: 6px; }
+        .word-counter { margin-top: 8px; font-size: 0.75rem; background: var(--chip-bg); display: inline-block; padding: 3px 12px; border-radius: 30px; }
+        .mastery-stars { display: flex; justify-content: center; gap: 8px; margin: 10px 0 5px; }
+        .star { font-size: 1.5rem; cursor: pointer; color: #ccc; transition: 0.1s; }
+        .star.active { color: #f5b042; }
         body.dark .star.active { color: #fbbf24; }
-        /* 释义区 */
-        .meaning-panel { padding: 0.2rem 1.5rem 1rem; }
-        .meaning-card { background: var(--card-bg); border-radius: 36px; padding: 1.2rem; border: 1px solid var(--card-border); }
-        .def-ch { font-size: 1.3rem; font-weight: 700; color: var(--def-color); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .example-en { color: var(--text-secondary); border-left: 3px solid var(--example-border); padding-left: 1rem; margin-top: 10px; font-size: 0.9rem; }
-        .placeholder-tip { text-align: center; color: var(--placeholder-color); padding: 0.8rem; }
-        /* 拼写模式 */
-        .spell-area { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-        .spell-input { flex: 2; min-width: 180px; padding: 10px 16px; border-radius: 60px; border: 1px solid var(--btn-outline-border); background: var(--card-bg); color: var(--text-primary); }
-        .spell-feedback { font-size: 0.8rem; margin-top: 6px; color: var(--text-secondary); }
-        /* 按钮组 */
-        .btn-group, .nav-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 0.5rem 1.5rem; }
-        .btn {
-            border: none;
-            background: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: 0.2s;
-        }
+        .meaning-panel { padding: 0.2rem 1rem 0.8rem; }
+        .meaning-card { background: var(--card-bg); border-radius: 32px; padding: 1rem; border: 1px solid var(--card-border); }
+        .def-ch { font-size: 1.2rem; font-weight: 700; color: var(--def-color); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .example-en { color: var(--text-secondary); border-left: 3px solid var(--example-border); padding-left: 0.8rem; margin-top: 8px; font-size: 0.85rem; }
+        .placeholder-tip { text-align: center; color: var(--placeholder-color); padding: 0.6rem; }
+        .spell-area { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .spell-input { flex: 2; min-width: 160px; padding: 8px 14px; border-radius: 60px; border: 1px solid var(--btn-outline-border); background: var(--card-bg); color: var(--text-primary); }
+        .btn-group, .nav-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 0.3rem 1rem 0.8rem; }
+        .btn { border: none; background: white; padding: 0.5rem 1rem; border-radius: 50px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s; }
         .btn-primary { background: var(--btn-primary-bg); color: white; }
         .btn-primary:hover { background: var(--btn-primary-hover); transform: translateY(-2px);}
         .btn-outline { background: transparent; border: 1px solid var(--btn-outline-border); color: var(--btn-outline-color);}
-        .btn-outline:hover { background: var(--chip-bg); }
         .btn-speak { background: var(--chip-bg); color: var(--chip-color);}
-        .mode-toggle { background: var(--chip-bg); color: var(--chip-color);}
-        /* 图表 & 错题本区域 */
-        .stats-area {
-            padding: 0 1.5rem 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .chart-container { flex: 2; min-width: 200px; background: var(--card-bg); border-radius: 28px; padding: 12px; border: 1px solid var(--card-border);}
-        .wrong-words { flex: 1; min-width: 180px; background: var(--card-bg); border-radius: 28px; padding: 12px; border: 1px solid var(--card-border); max-height: 250px; overflow-y: auto; }
-        .wrong-words h4 { font-size: 0.9rem; margin-bottom: 8px; }
-        .wrong-list { font-size: 0.8rem; list-style: none; }
+        .stats-area { padding: 0 1rem 1rem; display: flex; flex-wrap: wrap; gap: 15px; }
+        .chart-container { flex: 2; min-width: 180px; background: var(--card-bg); border-radius: 28px; padding: 10px; border: 1px solid var(--card-border);}
+        .wrong-words { flex: 1; min-width: 160px; background: var(--card-bg); border-radius: 28px; padding: 10px; border: 1px solid var(--card-border); max-height: 220px; overflow-y: auto; }
+        .wrong-words h4 { font-size: 0.85rem; margin-bottom: 6px; }
+        .wrong-list { font-size: 0.75rem; list-style: none; }
         .wrong-list li { padding: 4px 0; border-bottom: 1px solid var(--card-border); cursor: pointer; }
-        .footer-note { text-align: center; font-size: 0.7rem; padding: 0.8rem; color: var(--text-soft); border-top: 1px solid var(--footer-border);}
-        /* 模态框 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: var(--modal-bg);
-            color: var(--modal-text);
-            width: 90%;
-            max-width: 500px;
-            max-height: 70%;
-            border-radius: 32px;
-            padding: 1rem;
-            overflow-y: auto;
-            box-shadow: 0 20px 30px rgba(0,0,0,0.3);
-        }
-        .modal-content h3 { margin-bottom: 12px; }
-        .search-result-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--card-border);
-            cursor: pointer;
-            transition: 0.1s;
-        }
+        .footer-note { text-align: center; font-size: 0.65rem; padding: 0.6rem; color: var(--text-soft); border-top: 1px solid var(--card-border);}
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--modal-bg); color: var(--modal-text); width: 90%; max-width: 480px; max-height: 70%; border-radius: 32px; padding: 1rem; overflow-y: auto; }
+        .modal-content h3 { margin-bottom: 10px; }
+        .search-result-item { padding: 8px; border-bottom: 1px solid var(--card-border); cursor: pointer; }
         .search-result-item:hover { background: var(--chip-bg); }
-        .close-modal {
-            float: right;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        @media (max-width: 650px) {
-            .en-word { font-size: 2.2rem; }
-            .def-ch { font-size: 1.1rem; }
-            .btn { padding: 0.5rem 0.9rem; font-size: 0.75rem; }
-            .search-area input { width: 100px; }
-        }
+        .close-modal { float: right; font-size: 1.3rem; cursor: pointer; }
+        @media (max-width: 600px) { .en-word { font-size: 2rem; } .btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; } .search-area input { width: 100px; } }
+        .loading { text-align: center; padding: 20px; color: var(--text-secondary); }
     </style>
 </head>
 <body>
-<div class="master-card" id="app">
+<div class="master-card">
     <div class="header">
-        <h1><i class="fas fa-brain"></i> 智能单词本 · 5级掌握+艾宾浩斯复习</h1>
-        <div class="sub">6000+词汇 | 拼写测试 | 错题本 | 学习曲线 | 双发音 | 单词搜索</div>
+        <h1><i class="fas fa-cloud"></i> 智能单词本 · API海量词库</h1>
+        <div class="sub">艾宾浩斯复习 · 拼写测试 · 错题本 · 学习曲线 · 双发音</div>
     </div>
     <div class="control-bar">
         <button id="darkModeBtn" class="ctrl-btn"><i class="fas fa-moon"></i> 深色</button>
@@ -275,6 +91,7 @@
             <input type="text" id="searchInput" placeholder="查单词/释义...">
             <button id="searchBtn"><i class="fas fa-search"></i></button>
         </div>
+        <button id="randomApiBtn" class="ctrl-btn"><i class="fas fa-dice-d6"></i> 随机单词</button>
     </div>
 
     <div class="word-zone">
@@ -285,15 +102,16 @@
             <div class="mastery-stars" id="masteryStars">
                 <span class="star" data-score="1">☆</span><span class="star" data-score="2">☆</span><span class="star" data-score="3">☆</span><span class="star" data-score="4">☆</span><span class="star" data-score="5">☆</span>
             </div>
-            <div id="reviewHint" style="font-size:0.7rem; margin-top:5px; color:var(--text-soft);"></div>
+            <div id="reviewHint" style="font-size:0.7rem; margin-top:4px; color:var(--text-soft);"></div>
         </div>
     </div>
 
-    <div class="meaning-panel" id="meaningPanel">
+    <div class="meaning-panel">
         <div class="meaning-card">
             <div id="meaningPlaceholder" class="placeholder-tip"><i class="fas fa-lightbulb"></i> 点击「显示释义」或开启拼写模式</div>
             <div id="meaningReal" style="display:none;">
                 <div class="def-ch"><i class="fas fa-bookmark"></i> <span id="chineseDef"></span></div>
+                <div id="extraInfo" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-secondary);"></div>
                 <div class="example-en"><i class="fas fa-quote-right"></i> <span id="exampleSent"></span></div>
             </div>
             <div id="spellModeArea" style="display:none;">
@@ -312,7 +130,6 @@
         <button id="revealBtn" class="btn btn-primary"><i class="fas fa-eye"></i> 显示释义</button>
         <button id="speakUkBtn" class="btn btn-speak"><i class="fas fa-flag-checkered"></i> 英式</button>
         <button id="speakUsBtn" class="btn btn-speak"><i class="fas fa-flag-usa"></i> 美式</button>
-        <button id="randomBtn" class="btn btn-outline"><i class="fas fa-random"></i> 随机</button>
         <button id="pronounceAccuracyBtn" class="btn btn-outline"><i class="fas fa-microphone"></i> 发音测测</button>
     </div>
 
@@ -322,257 +139,467 @@
     </div>
 
     <div class="stats-area">
-        <div class="chart-container"><canvas id="studyChart" width="300" height="150"></canvas></div>
-        <div class="wrong-words"><h4><i class="fas fa-eraser"></i> 错题本/生词本</h4><ul id="wrongList" class="wrong-list"><li>暂无错词，加油！</li></ul></div>
+        <div class="chart-container"><canvas id="studyChart" width="280" height="130"></canvas></div>
+        <div class="wrong-words"><h4><i class="fas fa-eraser"></i> 错题本/生词本</h4><ul id="wrongList" class="wrong-list"><li>暂无错词</li></ul></div>
     </div>
-    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级改变掌握度 | 拼写模式自动记录错题 | 艾宾浩斯提醒</div>
+    <div class="footer-note"><i class="fas fa-arrows-alt"></i> 手势滑动切词 | 星级掌握度 | 拼写自动记错 | 基于API海量词库</div>
 </div>
 
-<!-- 搜索结果模态框 -->
-<div id="searchModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" id="closeModalBtn">&times;</span>
-        <h3>🔍 搜索结果</h3>
-        <div id="searchResultsList"></div>
-    </div>
-</div>
+<div id="searchModal" class="modal"><div class="modal-content"><span class="close-modal" id="closeModalBtn">&times;</span><h3>🔍 搜索结果</h3><div id="searchResultsList"></div></div></div>
 
 <script>
-    // ----------------------------- 完整词库 (6000+ 动态生成) -----------------------------
-    // 为了确保搜索功能有真实单词，构建一个包含实际内容的词库。
-    const coreWords = [
-        ["abandon","/əˈbændən/","v. 抛弃，放弃","Due to bad weather, they had to abandon the plan."],
-        ["accelerate","/əkˈseləreɪt/","v. 加速，促进","The car can accelerate from 0 to 100 km/h in 6 seconds."],
-        ["accommodate","/əˈkɑːmədeɪt/","v. 容纳；提供住处","The hotel can accommodate up to 500 guests."],
-        ["accompany","/əˈkʌmpəni/","v. 陪伴，伴随","She asked me to accompany her to the concert."],
-        ["accomplish","/əˈkɑːmplɪʃ/","v. 完成，实现","You can accomplish anything if you work hard."],
-        ["accurate","/ˈækjərət/","adj. 精确的，准确的","His information was accurate and helpful."],
-        ["accuse","/əˈkjuːz/","v. 指责，控告","They accused him of stealing the money."],
-        ["achieve","/əˈtʃiːv/","v. 实现，取得","He worked hard to achieve his goals."],
-        ["acknowledge","/əkˈnɑːlɪdʒ/","v. 承认；致谢","We acknowledge receipt of your letter."],
-        ["adapt","/əˈdæpt/","v. 适应；改编","Humans can adapt to various climates."],
-        ["address","/əˈdres/","v. 处理；演讲","The president will address the nation tonight."],
-        ["adjust","/əˈdʒʌst/","v. 调整，调节","You need to adjust your schedule."],
-        ["admire","/ədˈmaɪər/","v. 钦佩，羡慕","I admire your courage."],
-        ["admit","/ədˈmɪt/","v. 承认；准许进入","He admitted making a mistake."],
-        ["adopt","/əˈdɑːpt/","v. 采用；收养","They decided to adopt a child."],
-        ["advance","/ədˈvæns/","v. 前进；促进","Technology has advanced rapidly."],
-        ["advocate","/ˈædvəkeɪt/","v. 提倡，拥护","Many experts advocate regular exercise."],
-        ["affect","/əˈfekt/","v. 影响；感动","The weather affects my mood."],
-        ["aggregate","/ˈæɡrɪɡət/","n./v. 总计，聚合","The aggregate score was 98."],
-        ["allocate","/ˈæləkeɪt/","v. 分配，拨出","We need to allocate resources efficiently."],
-        ["anticipate","/ænˈtɪsɪpeɪt/","v. 预期，期待","We anticipate a lot of interest in the new product."],
-        ["apparent","/əˈpærənt/","adj. 明显的，显然的","It was apparent that she was upset."],
-        ["appeal","/əˈpiːl/","v./n. 呼吁；有吸引力","The idea appeals to young people."],
-        ["apply","/əˈplaɪ/","v. 申请；应用","You can apply for the job online."],
-        ["approach","/əˈproʊtʃ/","v./n. 方法；接近","We need a new approach to the problem."],
-        ["appropriate","/əˈproʊpriət/","adj. 适当的，合适的","Jeans are not appropriate for a wedding."],
-        ["approve","/əˈpruːv/","v. 批准，赞成","The committee approved the budget."],
-        ["arise","/əˈraɪz/","v. 出现，发生","New problems will arise."],
-        ["arouse","/əˈraʊz/","v. 引起，唤醒","His speech aroused public interest."],
-        ["assemble","/əˈsembl/","v. 集合；装配","The crowd assembled in the square."],
-        ["assess","/əˈses/","v. 评估，评定","It's difficult to assess the damage."],
-        ["assign","/əˈsaɪn/","v. 分配，指定","The teacher assigned homework."],
-        ["assist","/əˈsɪst/","v. 帮助，协助","She assisted me with the project."],
-        ["assume","/əˈsuːm/","v. 假定，承担","I assume you know the answer."],
-        ["assure","/əˈʃʊr/","v. 保证，使确信","I assure you it's safe."],
-        ["attach","/əˈtætʃ/","v. 附上，连接","Please attach the file to the email."],
-        ["attain","/əˈteɪn/","v. 获得，达到","He finally attained his dream."],
-        ["attitude","/ˈætɪtuːd/","n. 态度，看法","Positive attitude leads to success."],
-        ["attribute","/əˈtrɪbjuːt/","v. 归因于","She attributes her success to hard work."],
-        ["authorize","/ˈɔːθəraɪz/","v. 授权，批准","Only the manager can authorize refunds."],
-        ["beneficial","/ˌbenɪˈfɪʃl/","adj. 有益的","Regular exercise is beneficial to health."],
-        ["brief","/briːf/","adj. 简洁的；n.摘要","Please give a brief introduction."],
-        ["calculate","/ˈkælkjuleɪt/","v. 计算","Calculate the total cost."],
-        ["campaign","/kæmˈpeɪn/","n. 运动，战役","An advertising campaign was launched."],
-        ["candidate","/ˈkændɪdeɪt/","n. 候选人","There are three candidates for the position."],
-        ["capable","/ˈkeɪpəbl/","adj. 有能力的","She is capable of leading the team."],
-        ["challenge","/ˈtʃælɪndʒ/","n./v. 挑战","This task is a real challenge."],
-        ["characteristic","/ˌkærəktəˈrɪstɪk/","n. 特征；adj.典型的","Generosity is a characteristic of hers."],
-        ["clarify","/ˈklærəfaɪ/","v. 澄清，阐明","Let me clarify my point."],
-        ["collapse","/kəˈlæps/","v./n. 倒塌，崩溃","The building collapsed after the earthquake."],
-        ["combine","/kəmˈbaɪn/","v. 结合，联合","Combine the ingredients well."],
-        ["commerce","/ˈkɑːmɜːrs/","n. 商业，贸易","E-commerce has grown rapidly."],
-        ["commit","/kəˈmɪt/","v. 犯（罪）；承诺","He committed a serious error."],
-        ["commodity","/kəˈmɑːdəti/","n. 商品","Oil is an important commodity."],
-        ["communicate","/kəˈmjuːnɪkeɪt/","v. 沟通，交流","We must communicate effectively."],
-        ["community","/kəˈmjuːnəti/","n. 社区，团体","The community supports recycling."],
-        ["comparable","/ˈkɑːmpərəbl/","adj. 可比较的，类似的","The two products are comparable in quality."],
-        ["compensate","/ˈkɑːmpenseɪt/","v. 补偿，弥补","The company compensates injured workers."],
-        ["compile","/kəmˈpaɪl/","v. 汇编，编纂","He compiled a list of references."],
-        ["complex","/kəmˈpleks/","adj. 复杂的","The situation is very complex."],
-        ["compose","/kəmˈpoʊz/","v. 组成，作曲","Water is composed of hydrogen and oxygen."],
-        ["concentrate","/ˈkɑːnsntreɪt/","v. 集中，全神贯注","Please concentrate on your work."],
-        ["concept","/ˈkɑːnsept/","n. 概念，观念","Freedom is an abstract concept."],
-        ["conclude","/kənˈkluːd/","v. 结束，推断","What can you conclude from the data?"],
-        ["conduct","/kənˈdʌkt/","v. 实施，指挥","They conducted an experiment."],
-        ["confer","/kənˈfɜːr/","v. 授予；商议","The university conferred an honorary degree."],
-        ["confine","/kənˈfaɪn/","v. 限制，禁闭","Please confine your remarks to the topic."],
-        ["confirm","/kənˈfɜːrm/","v. 确认，证实","Can you confirm the reservation?"],
-        ["conflict","/ˈkɑːnflɪkt/","n./v. 冲突，矛盾","There is a conflict between them."],
-        ["conform","/kənˈfɔːrm/","v. 遵守，符合","You must conform to the rules."],
-        ["confront","/kənˈfrʌnt/","v. 面对，遭遇","We must confront the problem."]
-    ];
-    
-    let fullVocabulary = [];
-    function addWords(arr) { for(let w of arr) fullVocabulary.push({ word: w[0], phonetic: w[1], meaning: w[2], example: w[3] }); }
-    addWords(coreWords);
-    
-    // 快速扩展至6000+ (使用通用单词填充)
-    for(let i=0; i<6000; i++) {
-        if(fullVocabulary.length >= 6200) break;
-        let w = `word${i}`;
-        fullVocabulary.push({word:w, phonetic:`/wɜːd/`, meaning:`示例含义${i}`, example:`Example for ${w}.`});
-    }
-    const totalWords = fullVocabulary.length;
+// ============================================================
+// 基于 API 的单词学习系统
+// API: https://v2.xxapi.cn/api/englishwords?word={word}
+// 支持缓存、掌握度、错题本、艾宾浩斯复习
+// ============================================================
 
-    // ---------- localStorage 数据结构 ----------
-    let mastery = JSON.parse(localStorage.getItem('word_mastery')) || {};
-    let wrongList = JSON.parse(localStorage.getItem('wrong_words')) || [];
-    let studyLog = JSON.parse(localStorage.getItem('study_log')) || {};
-    let lastReview = JSON.parse(localStorage.getItem('last_review')) || {};
-    const ebbinghaus = [1, 2, 4, 7, 15, 30];
-    function todayStr() { return new Date().toISOString().slice(0,10); }
-    function logStudy() { let date = todayStr(); studyLog[date] = (studyLog[date] || 0) + 1; localStorage.setItem('study_log', JSON.stringify(studyLog)); updateChart(); }
-    function updateWrongListUI() {
-        let container = document.getElementById('wrongList');
-        if(!wrongList.length) { container.innerHTML = '<li>暂无错词，加油！</li>'; return; }
-        container.innerHTML = wrongList.map(idx => `<li data-idx="${idx}">${fullVocabulary[idx]?.word || idx} - ${fullVocabulary[idx]?.meaning || ''}</li>`).join('');
-        document.querySelectorAll('#wrongList li').forEach(li => {
-            li.addEventListener('click', (e) => { let idx = parseInt(li.dataset.idx); if(!isNaN(idx)) { currentIndex = idx; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); } });
+// ---------- 核心数据结构 ----------
+let wordList = [];           // 存储当前学习列表（单词对象）
+let currentIndex = 0;
+let meaningVisible = false;
+let spellMode = false;
+
+// 本地存储 key
+const STORAGE_KEYS = {
+    MASTERY: 'word_mastery_api',
+    WRONG: 'wrong_words_api',
+    STUDY_LOG: 'study_log_api',
+    LAST_REVIEW: 'last_review_api',
+    WORD_CACHE: 'word_cache_api'    // 缓存单词详情
+};
+
+// 学习数据
+let mastery = JSON.parse(localStorage.getItem(STORAGE_KEYS.MASTERY)) || {};
+let wrongList = JSON.parse(localStorage.getItem(STORAGE_KEYS.WRONG)) || [];
+let studyLog = JSON.parse(localStorage.getItem(STORAGE_KEYS.STUDY_LOG)) || {};
+let lastReview = JSON.parse(localStorage.getItem(STORAGE_KEYS.LAST_REVIEW)) || {};
+let wordCache = JSON.parse(localStorage.getItem(STORAGE_KEYS.WORD_CACHE)) || {};
+
+// 艾宾浩斯间隔（天）
+const EBBINGHAUS = [1, 2, 4, 7, 15, 30];
+
+// 常用单词种子列表（用于初始化学习列表，这些词会从 API 获取详情）
+const SEED_WORDS = [
+    "abandon", "ability", "able", "abnormal", "aboard", "abolish", "abrupt", "absent", "absolute", "absorb",
+    "abstract", "abundant", "abuse", "academic", "accelerate", "access", "accident", "accompany", "accomplish",
+    "account", "accurate", "accuse", "achieve", "acknowledge", "acquire", "adapt", "address", "adequate",
+    "adjust", "admire", "admit", "adopt", "advance", "advantage", "advice", "advise", "advocate", "affect",
+    "afford", "age", "agency", "agent", "aggressive", "agree", "aid", "aim", "air", "alarm", "album", "alcohol",
+    "alert", "alien", "alike", "alive", "allow", "almost", "alone", "along", "aloud", "alphabet", "already",
+    "also", "alter", "alternate", "alternative", "although", "altitude", "altogether", "always", "amateur",
+    "amaze", "ambition", "ambulance", "amount", "amuse", "analyze", "ancient", "anger", "angle", "angry",
+    "animal", "anniversary", "announce", "annoy", "annual", "another", "answer", "ant", "anticipate",
+    "anxiety", "anxious", "any", "apart", "apartment", "apologize", "apparent", "appeal", "appear", "appetite",
+    "apply", "appoint", "appreciate", "approach", "appropriate", "approve", "approximate", "area", "argue",
+    "arise", "arm", "army", "around", "arrange", "arrest", "arrive", "arrow", "article", "artificial", "artist",
+    "ashamed", "aside", "ask", "aspect", "assemble", "assert", "assess", "assign", "assist", "assume", "assure",
+    "astonish", "atmosphere", "attach", "attack", "attain", "attempt", "attend", "attitude", "attract",
+    "attribute", "audience", "author", "authority", "available", "average", "avoid", "await", "awake", "award", "aware"
+];
+
+// ---------- 工具函数 ----------
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+function logStudy() {
+    let date = todayStr();
+    studyLog[date] = (studyLog[date] || 0) + 1;
+    localStorage.setItem(STORAGE_KEYS.STUDY_LOG, JSON.stringify(studyLog));
+    updateChart();
+}
+
+// 更新错题本 UI
+function updateWrongListUI() {
+    let container = document.getElementById('wrongList');
+    if(!wrongList.length) { container.innerHTML = '<li>暂无错词，加油！</li>'; return; }
+    container.innerHTML = wrongList.map(word => `<li data-word="${word}">${word}</li>`).join('');
+    document.querySelectorAll('#wrongList li').forEach(li => {
+        li.addEventListener('click', () => {
+            let word = li.dataset.word;
+            if(word) loadWordByName(word, true);
         });
-    }
-    function addToWrongList(idx) { if(!wrongList.includes(idx)) { wrongList.push(idx); localStorage.setItem('wrong_words', JSON.stringify(wrongList)); updateWrongListUI(); } }
-    function removeFromWrongList(idx) { wrongList = wrongList.filter(i => i !== idx); localStorage.setItem('wrong_words', JSON.stringify(wrongList)); updateWrongListUI(); }
-    function updateMasteryStars() {
-        let score = mastery[currentIndex] || 1;
-        for(let i=1;i<=5;i++){ let star = document.querySelector(`.star[data-score='${i}']`); if(i <= score) { star.innerHTML = '★'; star.classList.add('active'); } else { star.innerHTML = '☆'; star.classList.remove('active'); } }
-        let last = lastReview[currentIndex];
-        if(last){ let daysPassed = Math.floor((Date.now() - last) / (1000*3600*24)); let nextInterval = ebbinghaus.find(interval => interval > daysPassed); if(nextInterval) document.getElementById('reviewHint').innerHTML = `📅 建议 ${nextInterval - daysPassed} 天后复习 (艾宾浩斯)`; else document.getElementById('reviewHint').innerHTML = `✅ 已熟练掌握，继续巩固`; }
-        else { document.getElementById('reviewHint').innerHTML = `⭐ 点击星级标记掌握度，系统将安排复习`; }
-    }
-    function setMastery(score){ mastery[currentIndex] = score; localStorage.setItem('word_mastery', JSON.stringify(mastery)); lastReview[currentIndex] = Date.now(); localStorage.setItem('last_review', JSON.stringify(lastReview)); logStudy(); updateMasteryStars(); }
-    document.querySelectorAll('.star').forEach(star => { star.addEventListener('click', (e) => { let score = parseInt(star.dataset.score); setMastery(score); }); });
+    });
+}
 
-    let chart;
-    function updateChart() {
-        let labels = [], data = [];
-        let now = new Date();
-        for(let i=6; i>=0; i--){ let d = new Date(now); d.setDate(now.getDate()-i); let ds = d.toISOString().slice(0,10); labels.push(ds.slice(5)); data.push(studyLog[ds] || 0); }
-        if(chart) chart.destroy();
-        let ctx = document.getElementById('studyChart').getContext('2d');
-        chart = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'每日学习单词数', data, borderColor:'#2c4c7c', tension:0.2 }] } });
-    }
-
-    // 发音准确度
-    let recognition;
-    function initRecognition() { if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert("不支持语音识别"); return null; } const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = new SpeechRecognition(); rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1; return rec; }
-    function pronounceAccuracy() { if(!recognition) recognition = initRecognition(); if(!recognition) return; recognition.start(); recognition.onresult = (event) => { let spoken = event.results[0][0].transcript.toLowerCase().trim(); let target = fullVocabulary[currentIndex].word.toLowerCase(); if(spoken === target) alert(`🎉 完美！发音准确率100%`); else if(spoken.includes(target) || target.includes(spoken)) alert(`👍 接近正确！ (你说: ${spoken})`); else alert(`❌ 发音有误，正确: ${target} (你说: ${spoken})`); }; recognition.onerror = () => alert("请检查麦克风权限"); }
-
-    // 拼写模式
-    let spellMode = false;
-    function hideMeaningAndShowSpell(){ document.getElementById('meaningPlaceholder').style.display = 'none'; document.getElementById('meaningReal').style.display = 'none'; document.getElementById('spellModeArea').style.display = 'block'; let w = fullVocabulary[currentIndex]; document.getElementById('spellQuestion').innerHTML = `<i class="fas fa-question-circle"></i> 中文释义: ${w.meaning}<br>例句: ${w.example}`; document.getElementById('spellInput').value = ''; document.getElementById('spellFeedback').innerHTML = ''; document.getElementById('revealBtn').disabled = true; }
-    function showNormalMode() { document.getElementById('meaningPlaceholder').style.display = meaningVisible ? 'none' : 'block'; document.getElementById('meaningReal').style.display = meaningVisible ? 'block' : 'none'; document.getElementById('spellModeArea').style.display = 'none'; document.getElementById('revealBtn').disabled = false; }
-    function toggleSpellMode() { spellMode = !spellMode; if(spellMode) hideMeaningAndShowSpell(); else showNormalMode(); document.getElementById('modeSwitchBtn').innerHTML = spellMode ? '<i class="fas fa-eye"></i> 闪卡模式' : '<i class="fas fa-exchange-alt"></i> 拼写模式'; }
-    function checkSpell(){ let user = document.getElementById('spellInput').value.trim().toLowerCase(); let correct = fullVocabulary[currentIndex].word.toLowerCase(); if(user === correct){ document.getElementById('spellFeedback').innerHTML = '<span style="color:green;">✅ 完全正确！已从错题本移除</span>'; removeFromWrongList(currentIndex); let cur = mastery[currentIndex] || 1; if(cur < 5) setMastery(cur+1); } else { document.getElementById('spellFeedback').innerHTML = `<span style="color:#e53e3e;">❌ 错误！正确答案: ${correct}，已加入错题本</span>`; addToWrongList(currentIndex); let cur = mastery[currentIndex] || 1; if(cur > 1) setMastery(cur-1); } }
-    function revealAnswer(){ document.getElementById('spellFeedback').innerHTML = `🔎 正确答案: ${fullVocabulary[currentIndex].word}`; }
-
-    let currentIndex = 0;
-    let meaningVisible = false;
-    function updateWordUI(){
-        let w = fullVocabulary[currentIndex];
-        document.getElementById('currentWord').innerHTML = w.word;
-        document.getElementById('currentPhonetic').innerHTML = w.phonetic;
-        document.getElementById('counterText').innerHTML = `第${currentIndex+1}/${totalWords}词`;
-        if(!spellMode){
-            if(meaningVisible){ document.getElementById('chineseDef').innerHTML = w.meaning; document.getElementById('exampleSent').innerHTML = w.example; document.getElementById('meaningPlaceholder').style.display = 'none'; document.getElementById('meaningReal').style.display = 'block'; }
-            else { document.getElementById('meaningPlaceholder').style.display = 'block'; document.getElementById('meaningReal').style.display = 'none'; }
-        } else { hideMeaningAndShowSpell(); }
-        updateMasteryStars();
-    }
-    function showMeaning() { meaningVisible=true; updateWordUI(); }
-    function hideMeaning() { meaningVisible=false; updateWordUI(); }
-    function toggleMeaning() { if(spellMode) return; meaningVisible=!meaningVisible; updateWordUI(); }
-    function nextWord() { currentIndex = (currentIndex+1)%totalWords; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
-    function prevWord() { currentIndex = (currentIndex-1+totalWords)%totalWords; meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
-    function randomWord() { currentIndex = Math.floor(Math.random()*totalWords); meaningVisible=false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); }
-    function speak(lang) { let utterance = new SpeechSynthesisUtterance(fullVocabulary[currentIndex].word); utterance.lang = lang; speechSynthesis.cancel(); speechSynthesis.speak(utterance); }
-
-    // 手势翻页
-    let touchStartX = 0;
-    document.querySelector('.master-card').addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
-    document.querySelector('.master-card').addEventListener('touchend', (e) => { let endX = e.changedTouches[0].screenX; if(endX - touchStartX > 50) prevWord(); else if(touchStartX - endX > 50) nextWord(); });
-
-    // 深色模式
-    function toggleDark(){ document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
-    if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
-    let fontRange = document.getElementById('fontRange');
-    fontRange.addEventListener('input', (e)=>{ let size = e.target.value; document.querySelector('.en-word').style.fontSize = `${size*2.2}rem`; });
-
-    // 搜索功能
-    const searchModal = document.getElementById('searchModal');
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const searchResultsList = document.getElementById('searchResultsList');
-    function performSearch() {
-        let keyword = searchInput.value.trim().toLowerCase();
-        if(keyword === "") { alert("请输入要搜索的单词或释义"); return; }
-        let results = [];
-        for(let i=0; i<fullVocabulary.length; i++) {
-            let word = fullVocabulary[i].word.toLowerCase();
-            let meaning = fullVocabulary[i].meaning.toLowerCase();
-            if(word.includes(keyword) || meaning.includes(keyword)) {
-                results.push({ idx: i, word: fullVocabulary[i].word, meaning: fullVocabulary[i].meaning });
-                if(results.length >= 100) break; // 限制结果数量
-            }
-        }
-        if(results.length === 0) { searchResultsList.innerHTML = '<div>没有找到匹配的单词，换个关键词试试～</div>'; }
-        else {
-            searchResultsList.innerHTML = results.map(r => `<div class="search-result-item" data-idx="${r.idx}"><strong>${r.word}</strong> - ${r.meaning}</div>`).join('');
-            document.querySelectorAll('.search-result-item').forEach(el => {
-                el.addEventListener('click', () => {
-                    let idx = parseInt(el.dataset.idx);
-                    if(!isNaN(idx)) { currentIndex = idx; meaningVisible = false; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); searchModal.style.display = 'none'; }
-                });
-            });
-        }
-        searchModal.style.display = 'flex';
-    }
-    searchBtn.addEventListener('click', performSearch);
-    searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
-    closeModalBtn.addEventListener('click', () => { searchModal.style.display = 'none'; });
-    window.addEventListener('click', (e) => { if(e.target === searchModal) searchModal.style.display = 'none'; });
-
-    // 初始化事件
-    function init(){
-        updateWordUI();
+function addToWrongList(word) {
+    if(!wrongList.includes(word)) {
+        wrongList.push(word);
+        localStorage.setItem(STORAGE_KEYS.WRONG, JSON.stringify(wrongList));
         updateWrongListUI();
-        updateChart();
-        document.getElementById('revealBtn').addEventListener('click', toggleMeaning);
-        document.getElementById('speakUkBtn').addEventListener('click', ()=>speak('en-GB'));
-        document.getElementById('speakUsBtn').addEventListener('click', ()=>speak('en-US'));
-        document.getElementById('randomBtn').addEventListener('click', randomWord);
-        document.getElementById('prevBtn').addEventListener('click', prevWord);
-        document.getElementById('nextBtn').addEventListener('click', nextWord);
-        document.getElementById('darkModeBtn').addEventListener('click', toggleDark);
-        document.getElementById('modeSwitchBtn').addEventListener('click', toggleSpellMode);
-        document.getElementById('checkSpellBtn').addEventListener('click', checkSpell);
-        document.getElementById('revealAnswerBtn').addEventListener('click', revealAnswer);
-        document.getElementById('pronounceAccuracyBtn').addEventListener('click', pronounceAccuracy);
-        document.getElementById('reviewWrongBtn').addEventListener('click', ()=>{ if(wrongList.length) currentIndex = wrongList[0]; updateWordUI(); if(spellMode) hideMeaningAndShowSpell(); else hideMeaning(); });
-        window.addEventListener('keydown', (e)=>{ if(e.key === 'ArrowLeft'){ prevWord(); e.preventDefault(); } else if(e.key === 'ArrowRight'){ nextWord(); e.preventDefault(); } else if(e.key === ' ' && !spellMode){ toggleMeaning(); e.preventDefault(); } else if(e.key === 'r'){ randomWord(); e.preventDefault(); } });
     }
-    init();
+}
 
-    // Service Worker (PWA)
-    if ('serviceWorker' in navigator) {
-        const swCode = `const CACHE='word-v5'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
-        const blob = new Blob([swCode], {type:'application/javascript'});
-        navigator.serviceWorker.register(URL.createObjectURL(blob));
-        let manifestLink = document.querySelector('link[rel="manifest"]');
-        if(!manifestLink){ let l=document.createElement('link'); l.rel='manifest'; l.href='/manifest.json'; document.head.appendChild(l); }
+function removeFromWrongList(word) {
+    wrongList = wrongList.filter(w => w !== word);
+    localStorage.setItem(STORAGE_KEYS.WRONG, JSON.stringify(wrongList));
+    updateWrongListUI();
+}
+
+// 更新掌握度星级
+function updateMasteryStars() {
+    let currentWord = wordList[currentIndex]?.word;
+    if(!currentWord) return;
+    let score = mastery[currentWord] || 1;
+    for(let i=1;i<=5;i++){
+        let star = document.querySelector(`.star[data-score='${i}']`);
+        if(i <= score) { star.innerHTML = '★'; star.classList.add('active'); }
+        else { star.innerHTML = '☆'; star.classList.remove('active'); }
     }
+    // 艾宾浩斯提醒
+    let last = lastReview[currentWord];
+    if(last){
+        let daysPassed = Math.floor((Date.now() - last) / (1000*3600*24));
+        let nextInterval = EBBINGHAUS.find(interval => interval > daysPassed);
+        if(nextInterval) document.getElementById('reviewHint').innerHTML = `📅 建议 ${nextInterval - daysPassed} 天后复习 (艾宾浩斯)`;
+        else document.getElementById('reviewHint').innerHTML = `✅ 已熟练掌握，继续巩固`;
+    } else {
+        document.getElementById('reviewHint').innerHTML = `⭐ 点击星级标记掌握度，系统将安排复习`;
+    }
+}
+
+function setMastery(score) {
+    let currentWord = wordList[currentIndex]?.word;
+    if(!currentWord) return;
+    mastery[currentWord] = score;
+    localStorage.setItem(STORAGE_KEYS.MASTERY, JSON.stringify(mastery));
+    lastReview[currentWord] = Date.now();
+    localStorage.setItem(STORAGE_KEYS.LAST_REVIEW, JSON.stringify(lastReview));
+    logStudy();
+    updateMasteryStars();
+}
+
+// 星级点击
+document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', (e) => {
+        let score = parseInt(star.dataset.score);
+        setMastery(score);
+    });
+});
+
+// 学习曲线图表
+let chart;
+function updateChart() {
+    let labels = [], data = [];
+    let now = new Date();
+    for(let i=6; i>=0; i--){
+        let d = new Date(now); d.setDate(now.getDate()-i);
+        let ds = d.toISOString().slice(0,10);
+        labels.push(ds.slice(5));
+        data.push(studyLog[ds] || 0);
+    }
+    if(chart) chart.destroy();
+    let ctx = document.getElementById('studyChart').getContext('2d');
+    chart = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'每日学习单词数', data, borderColor:'#2c4c7c', tension:0.2 }] } });
+}
+
+// ---------- API 调用 ----------
+async function fetchWordFromAPI(word) {
+    // 检查缓存
+    if(wordCache[word]) {
+        return wordCache[word];
+    }
+    try {
+        const url = `https://v2.xxapi.cn/api/englishwords?word=${encodeURIComponent(word)}`;
+        const response = await fetch(url);
+        const result = await response.json();
+        if(result.code === 200 && result.data) {
+            const data = result.data;
+            // 构建标准单词对象
+            const wordObj = {
+                word: data.word || word,
+                phonetic: data.ukphone ? `/ˈ${data.ukphone}/` : (data.usphone ? `/ˈ${data.usphone}/` : '/wɜːd/'),
+                meaning: extractMeaning(data),
+                example: data.sentences && data.sentences[0] ? data.sentences[0].s_content : `Example sentence for ${word}.`,
+                extra: {
+                    phrases: data.phrases || [],
+                    synonyms: data.synonyms || [],
+                    ukSpeech: data.ukspeech,
+                    usSpeech: data.usspeech
+                }
+            };
+            // 存入缓存
+            wordCache[word] = wordObj;
+            localStorage.setItem(STORAGE_KEYS.WORD_CACHE, JSON.stringify(wordCache));
+            return wordObj;
+        }
+        return null;
+    } catch(error) {
+        console.error('API error:', error);
+        return null;
+    }
+}
+
+function extractMeaning(data) {
+    if(data.translations && data.translations[0]) {
+        return `${data.translations[0].pos || ''} ${data.translations[0].tran_cn || ''}`.trim();
+    }
+    return data.word || '未知释义';
+}
+
+// 加载单词（从 API 或缓存）
+async function loadWordByName(word, addToList = true) {
+    // 显示加载中
+    document.getElementById('currentWord').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> 加载中...';
+    
+    const wordObj = await fetchWordFromAPI(word);
+    if(!wordObj) {
+        document.getElementById('currentWord').innerHTML = '未找到该单词';
+        return false;
+    }
+    
+    if(addToList) {
+        // 检查是否已在列表中
+        let existingIndex = wordList.findIndex(w => w.word === word);
+        if(existingIndex !== -1) {
+            currentIndex = existingIndex;
+        } else {
+            wordList.push(wordObj);
+            currentIndex = wordList.length - 1;
+        }
+    } else {
+        // 临时替换当前显示的单词（不加入列表）
+        wordList[currentIndex] = wordObj;
+    }
+    
+    updateWordUI();
+    return true;
+}
+
+// 随机单词
+async function randomWordFromAPI() {
+    // 从种子词中随机选一个
+    const randomSeed = SEED_WORDS[Math.floor(Math.random() * SEED_WORDS.length)];
+    await loadWordByName(randomSeed, true);
+}
+
+// ---------- UI 更新 ----------
+function updateWordUI() {
+    if(!wordList.length || !wordList[currentIndex]) return;
+    const w = wordList[currentIndex];
+    document.getElementById('currentWord').innerHTML = w.word;
+    document.getElementById('currentPhonetic').innerHTML = w.phonetic;
+    document.getElementById('counterText').innerHTML = `第${currentIndex+1}/${wordList.length}词`;
+    
+    if(!spellMode){
+        if(meaningVisible){
+            document.getElementById('chineseDef').innerHTML = w.meaning;
+            document.getElementById('exampleSent').innerHTML = w.example;
+            // 显示额外信息
+            let extraHtml = '';
+            if(w.extra?.phrases && w.extra.phrases.length) {
+                extraHtml += `<div><strong>📖 短语：</strong> ${w.extra.phrases.slice(0,3).map(p => p.p_content).join(', ')}</div>`;
+            }
+            document.getElementById('extraInfo').innerHTML = extraHtml;
+            document.getElementById('meaningPlaceholder').style.display = 'none';
+            document.getElementById('meaningReal').style.display = 'block';
+        } else {
+            document.getElementById('meaningPlaceholder').style.display = 'block';
+            document.getElementById('meaningReal').style.display = 'none';
+        }
+    } else {
+        hideMeaningAndShowSpell();
+    }
+    updateMasteryStars();
+}
+
+function showMeaning() { meaningVisible=true; updateWordUI(); }
+function hideMeaning() { meaningVisible=false; updateWordUI(); }
+function toggleMeaning() { if(spellMode) return; meaningVisible=!meaningVisible; updateWordUI(); }
+
+function nextWord() {
+    if(wordList.length === 0) return;
+    currentIndex = (currentIndex + 1) % wordList.length;
+    meaningVisible = false;
+    updateWordUI();
+    if(spellMode) hideMeaningAndShowSpell();
+}
+
+function prevWord() {
+    if(wordList.length === 0) return;
+    currentIndex = (currentIndex - 1 + wordList.length) % wordList.length;
+    meaningVisible = false;
+    updateWordUI();
+    if(spellMode) hideMeaningAndShowSpell();
+}
+
+// 拼写模式
+function hideMeaningAndShowSpell() {
+    if(!wordList[currentIndex]) return;
+    const w = wordList[currentIndex];
+    document.getElementById('meaningPlaceholder').style.display = 'none';
+    document.getElementById('meaningReal').style.display = 'none';
+    document.getElementById('spellModeArea').style.display = 'block';
+    document.getElementById('spellQuestion').innerHTML = `<i class="fas fa-question-circle"></i> 中文释义: ${w.meaning}`;
+    document.getElementById('spellInput').value = '';
+    document.getElementById('spellFeedback').innerHTML = '';
+    document.getElementById('revealBtn').disabled = true;
+}
+
+function showNormalMode() {
+    document.getElementById('meaningPlaceholder').style.display = meaningVisible ? 'none' : 'block';
+    document.getElementById('meaningReal').style.display = meaningVisible ? 'block' : 'none';
+    document.getElementById('spellModeArea').style.display = 'none';
+    document.getElementById('revealBtn').disabled = false;
+}
+
+function toggleSpellMode() {
+    spellMode = !spellMode;
+    if(spellMode) hideMeaningAndShowSpell();
+    else showNormalMode();
+    document.getElementById('modeSwitchBtn').innerHTML = spellMode ? '<i class="fas fa-eye"></i> 闪卡模式' : '<i class="fas fa-exchange-alt"></i> 拼写模式';
+}
+
+function checkSpell() {
+    if(!wordList[currentIndex]) return;
+    let user = document.getElementById('spellInput').value.trim().toLowerCase();
+    let correct = wordList[currentIndex].word.toLowerCase();
+    if(user === correct) {
+        document.getElementById('spellFeedback').innerHTML = '<span style="color:green;">✅ 完全正确！</span>';
+        removeFromWrongList(correct);
+        let cur = mastery[correct] || 1;
+        if(cur < 5) setMastery(cur+1);
+    } else {
+        document.getElementById('spellFeedback').innerHTML = `<span style="color:#e53e3e;">❌ 错误！正确答案: ${correct}，已加入错题本</span>`;
+        addToWrongList(correct);
+        let cur = mastery[correct] || 1;
+        if(cur > 1) setMastery(cur-1);
+    }
+}
+
+function revealAnswer() {
+    if(!wordList[currentIndex]) return;
+    document.getElementById('spellFeedback').innerHTML = `🔎 正确答案: ${wordList[currentIndex].word}`;
+}
+
+// 发音
+function speak(lang) {
+    if(!wordList[currentIndex]) return;
+    let word = wordList[currentIndex].word;
+    let utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = lang;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+}
+
+// 发音准确度
+let recognition;
+function initRecognition() {
+    if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert("不支持语音识别"); return null; }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = new SpeechRecognition();
+    rec.lang = 'en-US';
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    return rec;
+}
+
+function pronounceAccuracy() {
+    if(!recognition) recognition = initRecognition();
+    if(!recognition) return;
+    recognition.start();
+    recognition.onresult = (event) => {
+        let spoken = event.results[0][0].transcript.toLowerCase().trim();
+        let target = wordList[currentIndex]?.word.toLowerCase() || '';
+        if(spoken === target) alert(`🎉 完美！发音准确率100%`);
+        else if(spoken.includes(target) || target.includes(spoken)) alert(`👍 接近正确！ (你说: ${spoken})`);
+        else alert(`❌ 发音有误，正确: ${target} (你说: ${spoken})`);
+    };
+    recognition.onerror = () => alert("请检查麦克风权限");
+}
+
+// 搜索功能
+const searchModal = document.getElementById('searchModal');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const searchResultsList = document.getElementById('searchResultsList');
+
+function performSearch() {
+    let keyword = searchInput.value.trim().toLowerCase();
+    if(keyword === "") { alert("请输入要搜索的单词"); return; }
+    // 直接尝试加载该单词
+    searchModal.style.display = 'none';
+    loadWordByName(keyword, true);
+}
+
+searchBtn.addEventListener('click', performSearch);
+searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
+closeModalBtn.addEventListener('click', () => { searchModal.style.display = 'none'; });
+window.addEventListener('click', (e) => { if(e.target === searchModal) searchModal.style.display = 'none'; });
+
+// 手势翻页
+let touchStartX = 0;
+document.querySelector('.master-card').addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+document.querySelector('.master-card').addEventListener('touchend', (e) => {
+    let endX = e.changedTouches[0].screenX;
+    if(endX - touchStartX > 50) prevWord();
+    else if(touchStartX - endX > 50) nextWord();
+});
+
+// 深色模式
+function toggleDark(){ document.body.classList.toggle('dark'); localStorage.setItem('darkMode', document.body.classList.contains('dark')); }
+if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
+
+// 字体调节
+let fontRange = document.getElementById('fontRange');
+fontRange.addEventListener('input', (e)=>{ let size = e.target.value; document.querySelector('.en-word').style.fontSize = `${size*2.2}rem`; });
+
+// 初始化
+async function init() {
+    // 绑定事件
+    document.getElementById('revealBtn').addEventListener('click', toggleMeaning);
+    document.getElementById('speakUkBtn').addEventListener('click', ()=>speak('en-GB'));
+    document.getElementById('speakUsBtn').addEventListener('click', ()=>speak('en-US'));
+    document.getElementById('randomApiBtn').addEventListener('click', randomWordFromAPI);
+    document.getElementById('prevBtn').addEventListener('click', prevWord);
+    document.getElementById('nextBtn').addEventListener('click', nextWord);
+    document.getElementById('darkModeBtn').addEventListener('click', toggleDark);
+    document.getElementById('modeSwitchBtn').addEventListener('click', toggleSpellMode);
+    document.getElementById('checkSpellBtn').addEventListener('click', checkSpell);
+    document.getElementById('revealAnswerBtn').addEventListener('click', revealAnswer);
+    document.getElementById('pronounceAccuracyBtn').addEventListener('click', pronounceAccuracy);
+    document.getElementById('reviewWrongBtn').addEventListener('click', () => {
+        if(wrongList.length) loadWordByName(wrongList[0], true);
+    });
+    
+    window.addEventListener('keydown', (e)=>{
+        if(e.key === 'ArrowLeft'){ prevWord(); e.preventDefault(); }
+        else if(e.key === 'ArrowRight'){ nextWord(); e.preventDefault(); }
+        else if(e.key === ' ' && !spellMode){ toggleMeaning(); e.preventDefault(); }
+    });
+    
+    // 加载初始单词列表
+    for(let seed of SEED_WORDS.slice(0, 50)) {
+        const cached = wordCache[seed];
+        if(cached) {
+            wordList.push(cached);
+        } else {
+            const fetched = await fetchWordFromAPI(seed);
+            if(fetched) wordList.push(fetched);
+        }
+    }
+    
+    if(wordList.length === 0) {
+        // 如果全部失败，至少加载一个
+        const fallback = await fetchWordFromAPI('test');
+        if(fallback) wordList.push(fallback);
+    }
+    
+    currentIndex = 0;
+    meaningVisible = false;
+    updateWordUI();
+    updateWrongListUI();
+    updateChart();
+}
+
+init();
+
+// PWA
+if ('serviceWorker' in navigator) {
+    const swCode = `const CACHE='word-v6'; self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'])))); self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob));
+}
 </script>
 </body>
 </html>
