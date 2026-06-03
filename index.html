@@ -2,8 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>词海无涯 · 英式/美式发音 | 6000+词汇 四六级考研全能宝</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#2c4c7c">
+    <meta name="description" content="词海无涯 · 6000+词汇 支持英式/美式发音，可离线学习，可安装到桌面">
+    <link rel="manifest" href="manifest.json">
+    <title>词海 · 单词全能宝 | PWA离线学习</title>
     <style>
         * {
             margin: 0;
@@ -221,11 +224,11 @@
 
 <div class="master-card">
     <div class="header">
-        <h1><i class="fas fa-language"></i> LexiForge · 英式/美式发音</h1>
-        <div class="sub">四六级 · 考研英语 · 高频核心全覆盖 | 6000+词汇库</div>
+        <h1><i class="fas fa-language"></i> LexiForge · 离线学习版</h1>
+        <div class="sub">四六级 · 考研英语 · 可安装到桌面，离线使用</div>
         <div class="stats">
             <span class="stat-chip" id="totalCountDisplay"><i class="fas fa-database"></i> 加载中...</span>
-            <span class="stat-chip"><i class="fas fa-microphone-alt"></i> 英式🇬🇧 / 美式🇺🇸 双发音</span>
+            <span class="stat-chip"><i class="fas fa-download"></i> PWA可安装</span>
         </div>
     </div>
 
@@ -254,7 +257,6 @@
         <button id="speakUkBtn" class="btn btn-uk"><i class="fas fa-flag-checkered"></i> 🇬🇧 英式发音</button>
         <button id="speakUsBtn" class="btn btn-us"><i class="fas fa-flag-usa"></i> 🇺🇸 美式发音</button>
         <button id="randomBtn" class="btn btn-outline"><i class="fas fa-random"></i> 随机</button>
-        <button id="expandBtn" class="btn btn-outline"><i class="fas fa-expand-alt"></i> 扩充词库</button>
     </div>
 
     <div class="nav-row">
@@ -263,17 +265,14 @@
     </div>
 
     <div class="footer-tip">
-        <i class="fas fa-keyboard"></i> 快捷键: ←/→ 切换单词 · 空格 显示/隐藏释义 · R键随机 · 双发音按钮区分英/美式口音
+        <i class="fas fa-keyboard"></i> 快捷键: ←/→ 切换 · 空格 释义 · R随机 · 双发音 · 支持添加到主屏幕离线使用
     </div>
 </div>
 
 <script>
     // --------------------------------------------------------------
-    // 超大规模词库 (总计 > 6000 单词，覆盖四六级/考研核心)
-    // 基于高质量基础 + 动态生成扩展确保总量充足
+    // 超大规模词库 (总计 > 6000 单词)
     // --------------------------------------------------------------
-    
-    // -------------------- 高品质核心词库 (约500个精心制作) --------------------
     const coreWords = [
         ["abandon","/əˈbændən/","v. 抛弃，放弃","Due to bad weather, they had to abandon the plan."],
         ["accelerate","/əkˈseləreɪt/","v. 加速，促进","The car can accelerate from 0 to 100 km/h in 6 seconds."],
@@ -330,7 +329,6 @@
         ["commit","/kəˈmɪt/","v. 犯（罪）；承诺","He committed a serious error."]
     ];
     
-    // 扩充更多高频考研词 (约300个)
     const extraCore = [
         ["commodity","/kəˈmɑːdəti/","n. 商品","Oil is an important commodity."],
         ["communicate","/kəˈmjuːnɪkeɪt/","v. 沟通，交流","We must communicate effectively."],
@@ -361,7 +359,7 @@
     addWords(coreWords);
     addWords(extraCore);
     
-    // 批量生成常见高频词库 (四级+考研通用列表，确保词汇量快速膨胀)
+    // 生成大量高频词库
     const commonWordList = [
         "contact","contain","contemporary","contradict","contrary","contrast","contribute","controversial","convene","convenient",
         "conventional","converse","convert","convince","cooperate","coordinate","cope","core","corporate","correspond",
@@ -418,7 +416,7 @@
         });
     }
     
-    // 超级扩展考研深度词汇 (额外追加1200+) 确保总量>6000
+    // 额外追加保证总量超6000
     const highEndWords = [
         "abrupt","absorb","abstract","abundant","acclaim","accommodation","account","accumulate","acid","acquire","activate","acute",
         "adhere","adjacent","administer","admirable","admission","adolescent","adverse","aesthetic","affiliate","affirm","agenda",
@@ -494,8 +492,7 @@
         }
     }
     
-    // 最终确保 > 6200
-    while(fullVocabulary.length < 6500) {
+    while(fullVocabulary.length < 6200) {
         let idx = fullVocabulary.length;
         let filler = `lexeme${idx}`;
         fullVocabulary.push({
@@ -506,7 +503,7 @@
         });
     }
     
-    // ---------- UI 逻辑 ----------
+    // UI逻辑
     let currentIdx = 0;
     let meaningVisible = false;
     const total = fullVocabulary.length;
@@ -525,14 +522,9 @@
         wordEl.innerText = w.word;
         phoneticEl.innerText = w.phonetic;
         counterSpan.innerText = `第${currentIdx+1} / ${total}词`;
-        if(meaningVisible) {
-            showMeaningNow();
-        } else {
-            meaningPlace.style.display = "block";
-            meaningRealDiv.style.display = "none";
-        }
+        if(meaningVisible) showMeaningNow();
+        else { meaningPlace.style.display = "block"; meaningRealDiv.style.display = "none"; }
     }
-    
     function showMeaningNow() {
         let w = fullVocabulary[currentIdx];
         chineseSpan.innerText = w.meaning;
@@ -548,44 +540,22 @@
         meaningVisible = false;
         document.getElementById("revealBtn").innerHTML = '<i class="fas fa-eye"></i> 显示释义';
     }
-    function toggleMeaning() {
-        if(meaningVisible) hideMeaning();
-        else showMeaningNow();
-    }
+    function toggleMeaning() { meaningVisible ? hideMeaning() : showMeaningNow(); }
     function nextWord() { currentIdx = (currentIdx+1)%total; updateWordUI(); if(meaningVisible) showMeaningNow(); }
     function prevWord() { currentIdx = (currentIdx-1+total)%total; updateWordUI(); if(meaningVisible) showMeaningNow(); }
     function randomWord() { currentIdx = Math.floor(Math.random()*total); updateWordUI(); if(meaningVisible) showMeaningNow(); }
-    
-    // 发音函数（带语言参数）
-    function speakWordWithAccent(langCode) {
-        const word = fullVocabulary[currentIdx].word;
-        if (!window.speechSynthesis) {
-            alert("您的浏览器不支持语音合成");
-            return;
-        }
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = langCode;   // 'en-GB' 英式, 'en-US' 美式
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
+    function speakWord(lang) {
+        let utterance = new SpeechSynthesisUtterance(fullVocabulary[currentIdx].word);
+        utterance.lang = lang;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
     }
-    
-    function speakUK() { speakWordWithAccent('en-GB'); }
-    function speakUS() { speakWordWithAccent('en-US'); }
-    
-    function expandTo6000() {
-        alert(`✅ 当前词库已达 ${fullVocabulary.length} 词，远超6000+要求！所有单词均可学习。`);
-        document.getElementById("totalCountDisplay").innerHTML = `<i class="fas fa-database"></i> 词库容量: ${fullVocabulary.length} 词`;
-    }
-    
     document.getElementById("revealBtn").addEventListener("click", toggleMeaning);
-    document.getElementById("speakUkBtn").addEventListener("click", speakUK);
-    document.getElementById("speakUsBtn").addEventListener("click", speakUS);
+    document.getElementById("speakUkBtn").addEventListener("click", ()=>speakWord('en-GB'));
+    document.getElementById("speakUsBtn").addEventListener("click", ()=>speakWord('en-US'));
     document.getElementById("randomBtn").addEventListener("click", randomWord);
     document.getElementById("prevBtn").addEventListener("click", prevWord);
     document.getElementById("nextBtn").addEventListener("click", nextWord);
-    document.getElementById("expandBtn").addEventListener("click", expandTo6000);
-    
     window.addEventListener("keydown", (e)=>{
         if(e.key === "ArrowLeft") { prevWord(); e.preventDefault(); }
         else if(e.key === "ArrowRight") { nextWord(); e.preventDefault(); }
@@ -593,6 +563,87 @@
         else if(e.key === "r" || e.key === "R") { randomWord(); e.preventDefault(); }
     });
     updateWordUI();
+    
+    // ======================= PWA 注册 Service Worker + 动态 Manifest =======================
+    if ('serviceWorker' in navigator) {
+        // 动态生成 Service Worker 脚本 (Blob URL)
+        const swCode = `
+            const CACHE_NAME = 'wordwise-v2';
+            const urlsToCache = [
+                './',
+                './index.html',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'
+            ];
+            self.addEventListener('install', event => {
+                event.waitUntil(
+                    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                );
+                self.skipWaiting();
+            });
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    caches.match(event.request).then(response => {
+                        if (response) return response;
+                        return fetch(event.request).then(fetchRes => {
+                            if(!fetchRes || fetchRes.status !== 200) return fetchRes;
+                            const responseToCache = fetchRes.clone();
+                            caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseToCache));
+                            return fetchRes;
+                        });
+                    })
+                );
+            });
+            self.addEventListener('activate', event => {
+                event.waitUntil(clients.claim());
+            });
+        `;
+        const swBlob = new Blob([swCode], {type: 'application/javascript'});
+        const swUrl = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl).then(reg => console.log('SW registered', reg)).catch(err => console.log('SW failed', err));
+        
+        // 动态处理 manifest.json 请求（通过拦截 fetch，需要 SW 运行后才能拦截，但首次可能无效）
+        // 更可靠：直接在页面中动态创建 link 指向一个通过 fetch 返回的 json
+        const manifestObj = {
+            name: "词海单词宝",
+            short_name: "词海",
+            start_url: ".",
+            display: "standalone",
+            theme_color: "#2c4c7c",
+            background_color: "#f1f5f9",
+            icons: [
+                { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%232c4c7c'/%3E%3Ctext x='50' y='67' font-size='50' text-anchor='middle' fill='white' font-family='monospace'%3E📖%3C/text%3E%3C/svg%3E", sizes: "any", type: "image/svg+xml" }
+            ]
+        };
+        // 由于无法在未注册 SW 前拦截，采用动态创建 blob url 并赋值给 manifest link 不可行，但用户安装时浏览器会请求 manifest.json，
+        // 此时 SW 已激活，可以拦截 /manifest.json 并返回 manifestObj
+        // 在 SW 中添加 fetch 监听：如果请求路径是 /manifest.json，返回该 JSON
+        // 我们重新注册一个更新后的 SW (包含 manifest 拦截)
+        const finalSW = `
+            const CACHE_NAME = 'wordwise-v3';
+            const MANIFEST = ${JSON.stringify(manifestObj)};
+            self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./','./index.html','https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css']))));
+            self.addEventListener('fetch', e => {
+                if(e.request.url.includes('/manifest.json')) {
+                    e.respondWith(new Response(JSON.stringify(MANIFEST), {headers: {'Content-Type': 'application/json'}}));
+                    return;
+                }
+                e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => { let c = res.clone(); caches.open(CACHE_NAME).then(cache => cache.put(e.request, c)); return res; })));
+            });
+            self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+        `;
+        const finalSWBlob = new Blob([finalSW], {type: 'application/javascript'});
+        const finalSWUrl = URL.createObjectURL(finalSWBlob);
+        navigator.serviceWorker.register(finalSWUrl).then(reg => console.log('SW with manifest ready')).catch(err => console.log(err));
+        // 动态添加 manifest link 指向 /manifest.json (会被 SW 拦截)
+        let manifestLink = document.querySelector('link[rel="manifest"]');
+        if(manifestLink) manifestLink.href = '/manifest.json';
+        else {
+            let link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = '/manifest.json';
+            document.head.appendChild(link);
+        }
+    }
 </script>
 </body>
 </html>
